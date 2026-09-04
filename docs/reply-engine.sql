@@ -13,8 +13,10 @@ create table if not exists public.partner_reply_summaries (
   priority text not null check (priority in ('high','medium','low')),
   organization text,
   summary jsonb not null,
-  notification_channel text not null check (notification_channel in ('sms','email','log')),
+  notification_status text not null default 'pending' check (notification_status in ('pending','sent','failed')),
+  notification_channel text check (notification_channel in ('sms','email','log')),
   notification_id text,
+  notification_updated_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -26,6 +28,9 @@ create index if not exists partner_reply_summaries_received_at_idx
 
 create index if not exists partner_reply_summaries_priority_idx
   on public.partner_reply_summaries (priority, received_at desc);
+
+create index if not exists partner_reply_summaries_notification_status_idx
+  on public.partner_reply_summaries (notification_status, created_at desc);
 
 alter table public.partner_reply_summaries enable row level security;
 
