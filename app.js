@@ -72,62 +72,101 @@ document.querySelector('#shareButton').addEventListener('click', async () => {
   }catch(e){/* user cancelled */}
 });
 
-// Persistent floating action button: keep the site's primary voter action within reach.
-const voteFab = document.createElement('a');
-voteFab.className = 'vote-fab';
-voteFab.href = '#location';
-voteFab.setAttribute('aria-label', 'Find my voting location');
-voteFab.innerHTML = '<span class="vote-fab-dot" aria-hidden="true"></span><span>FIND MY VOTING LOCATION</span><b aria-hidden="true">→</b>';
-document.body.append(voteFab);
+// FAAAAAA sound button — intentionally silly, intentionally memorable.
+const heroActions = document.querySelector('.hero-actions');
+const faaaaButton = document.createElement('button');
+faaaaButton.type = 'button';
+faaaaButton.className = 'button faaaa-button';
+faaaaButton.setAttribute('aria-label', 'Play the FAAAAAA sound');
+faaaaButton.innerHTML = '<span class="speaker" aria-hidden="true">🔊</span> FAAAAAAA!';
+heroActions.append(faaaaButton);
 
-const voteFabStyles = document.createElement('style');
-voteFabStyles.textContent = `
-  .vote-fab{
-    position:fixed;
-    right:22px;
-    bottom:22px;
-    z-index:9999;
-    min-height:58px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:0 19px;
-    background:#ff4b38;
-    color:#0b0d12;
-    border:2px solid #0b0d12;
-    box-shadow:6px 6px 0 #0b0d12;
-    font-family:"DM Sans",system-ui,sans-serif;
-    font-size:11px;
-    font-weight:900;
-    letter-spacing:.08em;
-    text-decoration:none;
-    transition:transform .18s ease,box-shadow .18s ease;
+function playFaaaaFallback(){
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if(!AudioContext) return;
+  const ctx = new AudioContext();
+  const now = ctx.currentTime;
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.24, now + 0.04);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + 1.25);
+  master.connect(ctx.destination);
+
+  [220, 330, 440].forEach((frequency, index) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = index === 0 ? 'sawtooth' : 'triangle';
+    osc.frequency.setValueAtTime(frequency, now);
+    osc.frequency.exponentialRampToValueAtTime(frequency * 0.68, now + 1.2);
+    gain.gain.value = 0.20 / (index + 1);
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(now + index * 0.012);
+    osc.stop(now + 1.28);
+  });
+}
+
+function playFaaaa(){
+  faaaaButton.classList.remove('is-playing');
+  void faaaaButton.offsetWidth;
+  faaaaButton.classList.add('is-playing');
+  setTimeout(() => faaaaButton.classList.remove('is-playing'), 1050);
+
+  if('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window){
+    window.speechSynthesis.cancel();
+    const yell = new SpeechSynthesisUtterance('Faaaaaaaaaaaa!');
+    yell.rate = 0.62;
+    yell.pitch = 0.72;
+    yell.volume = 1;
+    window.speechSynthesis.speak(yell);
+  }else{
+    playFaaaaFallback();
   }
-  .vote-fab:hover,.vote-fab:focus-visible{
-    transform:translate(-2px,-2px);
-    box-shadow:8px 8px 0 #0b0d12;
+}
+
+faaaaButton.addEventListener('click', playFaaaa);
+
+const faaaaStyles = document.createElement('style');
+faaaaStyles.textContent = `
+  .faaaa-button{
+    position:relative;
+    overflow:hidden;
+    background:#ff4b38;
+    border-color:#0b0d12;
+    color:#0b0d12;
+    box-shadow:4px 4px 0 #0b0d12;
+    font-size:13px;
+  }
+  .faaaa-button:hover,.faaaa-button:focus-visible{
+    background:#50ef9b;
+    transform:translate(-1px,-1px);
+    box-shadow:6px 6px 0 #0b0d12;
     outline:none;
   }
-  .vote-fab-dot{
-    width:9px;
-    height:9px;
-    flex:0 0 auto;
-    border-radius:50%;
-    background:#0b0d12;
-    box-shadow:0 0 0 5px rgba(11,13,18,.12);
+  .faaaa-button .speaker{font-size:17px}
+  .faaaa-button.is-playing{animation:faaaaShake .13s linear 7}
+  .faaaa-button.is-playing:after{
+    content:'FAAAAAAAAA!';
+    position:absolute;
+    inset:0;
+    display:grid;
+    place-items:center;
+    background:#ff4b38;
+    font-size:14px;
+    font-weight:900;
+    letter-spacing:.1em;
   }
-  .vote-fab b{font-size:19px;line-height:1}
+  @keyframes faaaaShake{
+    0%,100%{transform:translate(0,0) rotate(0)}
+    25%{transform:translate(-2px,1px) rotate(-1deg)}
+    50%{transform:translate(2px,-1px) rotate(1deg)}
+    75%{transform:translate(-1px,-1px) rotate(.5deg)}
+  }
   @media(max-width:780px){
-    body{padding-bottom:86px}
-    .vote-fab{
-      left:14px;
-      right:14px;
-      bottom:calc(14px + env(safe-area-inset-bottom));
-      justify-content:center;
-      min-height:60px;
-      box-shadow:4px 4px 0 #0b0d12;
-    }
+    .faaaa-button{width:100%}
   }
-  @media(prefers-reduced-motion:reduce){.vote-fab{transition:none}}
+  @media(prefers-reduced-motion:reduce){
+    .faaaa-button.is-playing{animation:none}
+  }
 `;
-document.head.append(voteFabStyles);
+document.head.append(faaaaStyles);
