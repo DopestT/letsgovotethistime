@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b0d12" />
+  <meta name="description" content="Find your official voting location, make a transportation plan, and request or fund ride access for the November 3, 2026 election." />
+  <title>Let's Go Vote This Time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="topline" role="status">
+    <span class="pulse"></span>
+    ELECTION DAY · NOVEMBER 3, 2026
+  </div>
+
+  <header class="nav shell">
+    <a class="brand" href="#top" aria-label="Let's Go Vote This Time home">
+      <span class="brand-mark">V</span>
+      <span>LET'S GO VOTE <strong>THIS TIME</strong></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#location">Find my location</a>
+      <a href="#ride">Get a ride</a>
+      <a href="#fund">Fund a ride</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div class="eyebrow">THE 2026 VOTING PLAN</div>
+      <h1>KNOW WHERE.<br>MAKE A PLAN.<br><em>GET THERE.</em></h1>
+      <p class="hero-copy">Your voting location can change. Check the official source now, save it, then make a transportation plan before Election Day.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#location">FIND WHERE I VOTE <span>→</span></a>
+        <a class="button ghost" href="#ride">I NEED A RIDE</a>
+      </div>
+
+      <div class="countdown-wrap" aria-label="Countdown to Election Day">
+        <div class="count-label">TIME UNTIL ELECTION DAY</div>
+        <div class="countdown" id="countdown">
+          <div><strong id="days">--</strong><span>DAYS</span></div>
+          <div><strong id="hours">--</strong><span>HOURS</span></div>
+          <div><strong id="minutes">--</strong><span>MIN</span></div>
+          <div><strong id="seconds">--</strong><span>SEC</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="statement">
+      <div class="shell statement-grid">
+        <p class="big-line">DON'T WAIT FOR ELECTION DAY<br>TO FIGURE OUT ELECTION DAY.</p>
+        <p>Three steps: verify your official voting location, plan how you will get there, and help someone else do the same.</p>
+      </div>
+    </section>
+
+    <section id="location" class="section shell">
+      <div class="section-number">01</div>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">OFFICIAL ELECTION INFORMATION</div>
+          <h2>FIND MY<br>VOTING LOCATION</h2>
+        </div>
+        <p>We do not keep a private polling-place database. Your lookup goes to the U.S. Election Assistance Commission, which links you to the official state or local election source.</p>
+      </div>
+
+      <div class="lookup-card">
+        <label for="state">Choose your state or D.C.</label>
+        <div class="lookup-row">
+          <select id="state" aria-label="Choose your state or District of Columbia">
+            <option value="">Select state</option>
+          </select>
+          <button class="button primary" id="lookupButton" type="button">OPEN OFFICIAL LOOKUP <span>↗</span></button>
+        </div>
+        <div class="trust-row">
+          <span>✓ Official election source</span>
+          <span>✓ Check hours & ID rules</span>
+          <span>✓ Verify again before you leave</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="ride" class="section dark-band">
+      <div class="shell">
+        <div class="section-number light">02</div>
+        <div class="section-head light-head">
+          <div>
+            <div class="eyebrow green">ROUTELY RIDE ACCESS</div>
+            <h2>NOW LET'S<br>GET YOU THERE.</h2>
+          </div>
+          <p>Already found your polling place? Paste its address below to plan the trip. If transportation cost or accessibility is the barrier, request help from the Ride Access pilot.</p>
+        </div>
+
+        <div class="route-grid">
+          <div class="route-card">
+            <div class="card-kicker">PLAN THE ROUTE</div>
+            <label for="pollAddress">Polling-place address</label>
+            <input id="pollAddress" type="text" autocomplete="street-address" placeholder="Paste the official polling-place address" />
+            <div class="route-buttons">
+              <button class="mini-button" data-mode="transit">TRANSIT</button>
+              <button class="mini-button" data-mode="driving">DRIVING</button>
+              <button class="mini-button" data-mode="walking">WALKING</button>
+            </div>
+            <p class="fine">Route planning opens Google Maps in a new tab. Confirm the destination against your official election lookup before traveling.</p>
+          </div>
+
+          <div class="route-card accent-card">
+            <div class="card-kicker">NEED TRANSPORTATION HELP?</div>
+            <h3>REQUEST RIDE ACCESS</h3>
+            <p>The first pilot intake is designed to collect only the minimum needed to follow up: your ZIP code, contact method, timing and accessibility needs. Do not send party or candidate preference.</p>
+            <a class="button light-button" id="rideRequest" href="mailto:hello@routely.app?subject=Voting%20Ride%20Access%20Request">START A RIDE REQUEST <span>→</span></a>
+            <div class="powered">ROUTELY · CIVIC RIDE ACCESS PILOT</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="fund" class="section shell">
+      <div class="section-number">03</div>
+      <div class="fund-grid">
+        <div>
+          <div class="eyebrow">REMOVE THE TRANSPORTATION BARRIER</div>
+          <h2>FUND<br>A RIDE.</h2>
+          <p class="fund-copy">The goal is a neutral ride-access pool available without regard to party, candidate, or how someone intends to vote. Donor funds support transportation access — not political persuasion.</p>
+        </div>
+        <div class="fund-card">
+          <div class="fund-line"><strong>$15</strong><span>can help cover a short local trip</span></div>
+          <div class="fund-line"><strong>$30</strong><span>can support a round trip</span></div>
+          <div class="fund-line"><strong>$150</strong><span>can seed multiple ride requests</span></div>
+          <a class="button primary full" href="mailto:hello@routely.app?subject=Fund%20a%20Voting%20Ride">I WANT TO FUND RIDES <span>→</span></a>
+          <p class="fine">Donation processing is not yet live. This opens a partnership inquiry so the fund can be structured and launched correctly.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="plan-strip">
+      <div class="shell plan-grid">
+        <div class="plan-copy">
+          <div class="eyebrow green">MAKE THE PLAN NOW</div>
+          <h2>YOUR VOTE.<br>YOUR LOCATION.<br>YOUR RIDE.</h2>
+        </div>
+        <div class="checklist" id="checklist">
+          <label><input type="checkbox" data-key="location"><span><b>1</b> I verified my voting location</span></label>
+          <label><input type="checkbox" data-key="route"><span><b>2</b> I know how I'm getting there</span></label>
+          <label><input type="checkbox" data-key="time"><span><b>3</b> I chose when I'm going</span></label>
+          <label><input type="checkbox" data-key="share"><span><b>4</b> I reminded someone else</span></label>
+          <button class="button light-button full" id="shareButton" type="button">SHARE THIS PLAN <span>↗</span></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer shell">
+    <div>
+      <div class="brand footer-brand"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></div>
+      <p>Nonpartisan voter access. Official election information stays with election officials.</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://www.eac.gov/vote" target="_blank" rel="noopener">EAC voter information ↗</a>
+      <a href="https://vote.gov/" target="_blank" rel="noopener">Vote.gov ↗</a>
+      <a href="mailto:hello@routely.app">Ride Access contact ↗</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
