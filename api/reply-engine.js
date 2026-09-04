@@ -5,6 +5,7 @@ import twilio from 'twilio';
 export const config = { api: { bodyParser: false } };
 
 const MAX_BODY_CHARS = 24000;
+const PENDING_STALE_MS = 10 * 60 * 1000;
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -36,9 +37,32 @@ export function stripHtml(html = '') {
     .trim();
 }
 
+export function trimQuotedHistory(text = '') {
+  const normalized = text.replace(/\r\n/g, '\n').trim();
+  const markerPatterns = [
+    /^On .+wrote:\s*$/gim,
+    /^-{2,}\s*Original Message\s*-{2,}\s*$/gim,
+    /^From:\s.+\n(?:Sent|Date):\s/gi
+  ];
+
+  let cutAt = normalized.length;
+  for (const pattern of markerPatterns) {
+    const match = pattern.exec(normalized);
+    if (match && match.index > 0) cutAt = Math.min(cutAt, match.index);
+  }
+
+  return normalized
+    .slice(0, cutAt)
+    .split('\n')
+    .filter((line) => !/^\s*>/.test(line))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function cleanBody(email) {
   const source = email.text?.trim() || stripHtml(email.html || '');
-  return source.slice(0, MAX_BODY_CHARS);
+  return trimQuotedHistory(source).slice(0, MAX_BODY_CHARS);
 }
 
 function getHeader(headers = {}, name) {
@@ -105,7 +129,7 @@ async function summarizeReply(email, body) {
           {
             type: 'input_text',
             text:
-              'You summarize replies to nonpartisan voting-access partnership outreach. Be literal and conservative. Never invent interest, commitments, deadlines, organizations, names, or requested actions. Separate what the sender actually committed to from what they merely mentioned. Mark automated replies as auto_reply. The next_action must be the smallest concrete action needed from our team. Keep summary concise and useful for an executive SMS alert.'
+              'You summarize replies to nonpartisan voting-access partnership outreach. Be literal and conservative. Never invent interest, commitments, deadlines, organizations, names, or requested actions. Separate what the sender actually committed to from what they merely mentioned. Ignore quoted history from earlier in the email thread and never attribute our own earlier pitch back to the sender. Mark automated replies as auto_reply. The next_action must be the smallest concrete action needed from our team. Keep summary concise and useful for an executive SMS alert.'
           }
         ]
       },
@@ -114,7 +138,7 @@ async function summarizeReply(email, body) {
         content: [
           {
             type: 'input_text',
-            text: `FROM: ${email.from || ''}\nSUBJECT: ${email.subject || ''}\nRECEIVED: ${email.created_at || ''}\n\nREPLY BODY:\n${body}`
+            text: `FROM: ${email.from || ''}\nSUBJECT: ${email.subject || ''}\nRECEIVED: ${email.created_at || ''}\n\nLATEST REPLY BODY:\n${body}`
           }
         ]
       }
@@ -148,6 +172,99 @@ export function formatNotification(summary, email) {
   ].join('\n');
 }
 
+function supabaseEnabled() {
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
+function supabaseHeaders(prefer) {
+  return {
+    apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+    'Content-Type': 'application/json',
+    ...(prefer ? { Prefer: prefer } : {})
+  };
+}
+
+async function findStored(emailId) {
+  if (!supabaseEnabled()) return null;
+  const url = new URL(`${process.env.SUPABASE_URL}/rest/v1/partner_reply_summaries`);
+  url.searchParams.set('resend_email_id', `eq.${emailId}`);
+  url.searchParams.set(
+    'select',
+    'resend_email_id,thread_key,stance,priority,summary,notification_status,notification_channel,notification_id,created_at'
+  );
+  url.searchParams.set('limit', '1');
+
+  const response = await fetch(url, { headers: supabaseHeaders() });
+  if (!response.ok) throw new Error(`Supabase lookup failed: ${response.status} ${await response.text()}`);
+  const rows = await response.json();
+  return rows[0] || null;
+}
+
+async function reserveSummary({ email, summary, threadKey }) {
+  if (!supabaseEnabled()) return { claimed: true, stored: false, existing: null };
+
+  const existing = await findStored(email.id);
+  if (existing) {
+    const age = Date.now() - new Date(existing.created_at).getTime();
+    const stalePending = existing.notification_status === 'pending' && age > PENDING_STALE_MS;
+    if (existing.notification_status === 'sent') return { claimed: false, stored: true, existing };
+    if (existing.notification_status === 'pending' && !stalePending) {
+      return { claimed: false, stored: true, existing, inFlight: true };
+    }
+    return { claimed: true, stored: true, existing };
+  }
+
+  const payload = {
+    resend_email_id: email.id,
+    message_id: email.message_id || null,
+    thread_key: threadKey,
+    sender: email.from || null,
+    subject: email.subject || null,
+    received_at: email.created_at || new Date().toISOString(),
+    stance: summary.stance,
+    priority: summary.priority,
+    organization: summary.organization,
+    summary,
+    notification_status: 'pending',
+    notification_channel: null,
+    notification_id: null
+  };
+
+  const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/partner_reply_summaries`, {
+    method: 'POST',
+    headers: supabaseHeaders('return=minimal'),
+    body: JSON.stringify(payload)
+  });
+
+  if (response.status === 409) {
+    const raced = await findStored(email.id);
+    return { claimed: false, stored: true, existing: raced, inFlight: true };
+  }
+
+  if (!response.ok) throw new Error(`Supabase reserve failed: ${response.status} ${await response.text()}`);
+  return { claimed: true, stored: true, existing: null };
+}
+
+async function finalizeStored(emailId, notification, status = 'sent') {
+  if (!supabaseEnabled()) return;
+  const url = new URL(`${process.env.SUPABASE_URL}/rest/v1/partner_reply_summaries`);
+  url.searchParams.set('resend_email_id', `eq.${emailId}`);
+
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: supabaseHeaders('return=minimal'),
+    body: JSON.stringify({
+      notification_status: status,
+      notification_channel: notification?.channel || null,
+      notification_id: notification?.id || null,
+      notification_updated_at: new Date().toISOString()
+    })
+  });
+
+  if (!response.ok) throw new Error(`Supabase finalize failed: ${response.status} ${await response.text()}`);
+}
+
 async function sendNotification(summary, email, resend) {
   const text = formatNotification(summary, email);
 
@@ -169,12 +286,15 @@ async function sendNotification(summary, email, resend) {
 
   if (process.env.SUMMARY_NOTIFY_EMAIL) {
     const from = process.env.SUMMARY_FROM_EMAIL || 'Partner Reply Engine <onboarding@resend.dev>';
-    const { data, error } = await resend.emails.send({
-      from,
-      to: process.env.SUMMARY_NOTIFY_EMAIL,
-      subject: `Partner reply: ${summary.organization || email.from || email.subject || 'new reply'}`,
-      text
-    });
+    const { data, error } = await resend.emails.send(
+      {
+        from,
+        to: process.env.SUMMARY_NOTIFY_EMAIL,
+        subject: `Partner reply: ${summary.organization || email.from || email.subject || 'new reply'}`,
+        text
+      },
+      { idempotencyKey: `partner-reply-summary/${email.id}` }
+    );
     if (error) throw error;
     return { channel: 'email', id: data?.id || null };
   }
@@ -183,50 +303,14 @@ async function sendNotification(summary, email, resend) {
   return { channel: 'log', id: null };
 }
 
-async function persistSummary({ email, summary, threadKey, notification }) {
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return { stored: false };
-
-  const payload = {
-    resend_email_id: email.id,
-    message_id: email.message_id || null,
-    thread_key: threadKey,
-    sender: email.from || null,
-    subject: email.subject || null,
-    received_at: email.created_at || new Date().toISOString(),
-    stance: summary.stance,
-    priority: summary.priority,
-    organization: summary.organization,
-    summary,
-    notification_channel: notification.channel,
-    notification_id: notification.id
-  };
-
-  const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/partner_reply_summaries`, {
-    method: 'POST',
-    headers: {
-      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: 'resolution=ignore-duplicates,return=minimal'
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Supabase insert failed: ${response.status} ${detail}`);
-  }
-
-  return { stored: true };
-}
-
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     return res.status(200).json({
       ok: true,
       service: 'partner-reply-engine',
       receives: 'Resend email.received webhooks',
-      notification: process.env.SUMMARY_NOTIFY_PHONE ? 'sms' : process.env.SUMMARY_NOTIFY_EMAIL ? 'email' : 'log'
+      notification: process.env.SUMMARY_NOTIFY_PHONE ? 'sms' : process.env.SUMMARY_NOTIFY_EMAIL ? 'email' : 'log',
+      persistence: supabaseEnabled() ? 'supabase' : 'disabled'
     });
   }
 
@@ -253,23 +337,54 @@ export default async function handler(req, res) {
     const { data: email, error } = await resend.emails.receiving.get(event.data.email_id);
     if (error || !email) throw error || new Error('Unable to retrieve received email');
 
+    const already = await findStored(email.id);
+    if (already?.notification_status === 'sent') {
+      return res.status(200).json({ ok: true, duplicate: true, email_id: email.id });
+    }
+    if (already?.notification_status === 'pending') {
+      const age = Date.now() - new Date(already.created_at).getTime();
+      if (age <= PENDING_STALE_MS) {
+        return res.status(200).json({ ok: true, duplicate: true, in_flight: true, email_id: email.id });
+      }
+    }
+
     const body = cleanBody(email);
     if (!body) return res.status(200).json({ ok: true, skipped: 'empty-body' });
 
-    const summary = await summarizeReply(email, body);
-    const threadKey = buildThreadKey(email);
-    const notification = await sendNotification(summary, email, resend);
-    const storage = await persistSummary({ email, summary, threadKey, notification });
+    const summary = already?.summary || (await summarizeReply(email, body));
+    const threadKey = already?.thread_key || buildThreadKey(email);
+    const claim = await reserveSummary({ email, summary, threadKey });
 
-    return res.status(200).json({
-      ok: true,
-      email_id: email.id,
-      thread_key: threadKey,
-      stance: summary.stance,
-      priority: summary.priority,
-      notification: notification.channel,
-      stored: storage.stored
-    });
+    if (!claim.claimed) {
+      return res.status(200).json({
+        ok: true,
+        duplicate: true,
+        in_flight: Boolean(claim.inFlight),
+        email_id: email.id
+      });
+    }
+
+    try {
+      const notification = await sendNotification(summary, email, resend);
+      await finalizeStored(email.id, notification, 'sent');
+
+      return res.status(200).json({
+        ok: true,
+        email_id: email.id,
+        thread_key: threadKey,
+        stance: summary.stance,
+        priority: summary.priority,
+        notification: notification.channel,
+        stored: claim.stored
+      });
+    } catch (notificationError) {
+      try {
+        await finalizeStored(email.id, null, 'failed');
+      } catch (storageError) {
+        console.error('Failed to record notification failure', storageError);
+      }
+      throw notificationError;
+    }
   } catch (error) {
     console.error('partner-reply-engine error', error);
     return res.status(500).json({ ok: false, error: 'Reply processing failed' });
