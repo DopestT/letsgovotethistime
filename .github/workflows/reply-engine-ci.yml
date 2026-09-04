@@ -1,0 +1,39 @@
+name: Reply Engine CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/reply-engine.js'
+      - 'tests/reply-engine.test.mjs'
+      - 'package.json'
+      - '.github/workflows/reply-engine-ci.yml'
+  pull_request:
+    paths:
+      - 'api/reply-engine.js'
+      - 'tests/reply-engine.test.mjs'
+      - 'package.json'
+      - '.github/workflows/reply-engine-ci.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Syntax check
+        run: npm run check:reply-engine
+
+      - name: Unit tests
+        run: npm test
