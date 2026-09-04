@@ -71,3 +71,63 @@ document.querySelector('#shareButton').addEventListener('click', async () => {
     syncChecklist();
   }catch(e){/* user cancelled */}
 });
+
+// Persistent floating action button: keep the site's primary voter action within reach.
+const voteFab = document.createElement('a');
+voteFab.className = 'vote-fab';
+voteFab.href = '#location';
+voteFab.setAttribute('aria-label', 'Find my voting location');
+voteFab.innerHTML = '<span class="vote-fab-dot" aria-hidden="true"></span><span>FIND MY VOTING LOCATION</span><b aria-hidden="true">→</b>';
+document.body.append(voteFab);
+
+const voteFabStyles = document.createElement('style');
+voteFabStyles.textContent = `
+  .vote-fab{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    z-index:9999;
+    min-height:58px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 19px;
+    background:#ff4b38;
+    color:#0b0d12;
+    border:2px solid #0b0d12;
+    box-shadow:6px 6px 0 #0b0d12;
+    font-family:"DM Sans",system-ui,sans-serif;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-decoration:none;
+    transition:transform .18s ease,box-shadow .18s ease;
+  }
+  .vote-fab:hover,.vote-fab:focus-visible{
+    transform:translate(-2px,-2px);
+    box-shadow:8px 8px 0 #0b0d12;
+    outline:none;
+  }
+  .vote-fab-dot{
+    width:9px;
+    height:9px;
+    flex:0 0 auto;
+    border-radius:50%;
+    background:#0b0d12;
+    box-shadow:0 0 0 5px rgba(11,13,18,.12);
+  }
+  .vote-fab b{font-size:19px;line-height:1}
+  @media(max-width:780px){
+    body{padding-bottom:86px}
+    .vote-fab{
+      left:14px;
+      right:14px;
+      bottom:calc(14px + env(safe-area-inset-bottom));
+      justify-content:center;
+      min-height:60px;
+      box-shadow:4px 4px 0 #0b0d12;
+    }
+  }
+  @media(prefers-reduced-motion:reduce){.vote-fab{transition:none}}
+`;
+document.head.append(voteFabStyles);
