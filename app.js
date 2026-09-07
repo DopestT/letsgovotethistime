@@ -58,11 +58,25 @@ function syncChecklist(){
 checklist.forEach(box => box.addEventListener('change', () => localStorage.setItem(`votePlan.${box.dataset.key}`, String(box.checked))));
 syncChecklist();
 
+function buildShareUrl(){
+  const shareUrl = new URL('https://letsgovotethistime.com/');
+  shareUrl.searchParams.set('utm_source','share');
+  shareUrl.searchParams.set('utm_medium','referral');
+  shareUrl.searchParams.set('utm_campaign','2026-voting-plan');
+  shareUrl.searchParams.set('utm_content','checklist');
+
+  const incoming = new URLSearchParams(window.location.search);
+  const partner = incoming.get('partner');
+  if(partner) shareUrl.searchParams.set('partner', partner.slice(0,80));
+
+  return shareUrl.toString();
+}
+
 document.querySelector('#shareButton').addEventListener('click', async () => {
   const data = {
     title:"Let's Go Vote This Time",
     text:"Find your official voting location now, make a transportation plan, and help someone else get there on November 3, 2026.",
-    url:window.location.href
+    url:buildShareUrl()
   };
   try{
     if(navigator.share) await navigator.share(data);

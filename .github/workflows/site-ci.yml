@@ -1,0 +1,45 @@
+name: Site CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'partner-kit.html'
+      - 'app.js'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - '.github/workflows/site-ci.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'partner-kit.html'
+      - 'app.js'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - '.github/workflows/site-ci.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: JavaScript syntax
+        run: node --check app.js
+
+      - name: Validate XML sitemap
+        run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
+
+      - name: Verify crawl and canonical files
+        shell: bash
+        run: |
+          test -s robots.txt
+          test -s sitemap.xml
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/"' index.html
+          grep -q 'property="og:title"' index.html
+          grep -q 'application/ld+json' index.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/partner-kit"' partner-kit.html
+          grep -q 'Sitemap: https://letsgovotethistime.com/sitemap.xml' robots.txt
