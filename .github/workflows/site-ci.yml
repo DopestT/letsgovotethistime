@@ -15,6 +15,7 @@ on:
       - 'check-in-privacy.html'
       - 'voting-map.html'
       - 'voting-map.js'
+      - 'home-map.js'
       - 'reminder-privacy.html'
       - 'app.js'
       - 'growth.js'
@@ -34,6 +35,7 @@ on:
       - 'check-in-privacy.html'
       - 'voting-map.html'
       - 'voting-map.js'
+      - 'home-map.js'
       - 'reminder-privacy.html'
       - 'app.js'
       - 'growth.js'
@@ -55,6 +57,7 @@ jobs:
           node --check growth.js
           node --check check-in.js
           node --check voting-map.js
+          node --check home-map.js
 
       - name: Validate XML sitemap
         run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
@@ -67,10 +70,14 @@ jobs:
           test -s growth.js
           test -s check-in.js
           test -s voting-map.js
+          test -s home-map.js
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/"' index.html
           grep -q 'property="og:title"' index.html
           grep -q 'application/ld+json' index.html
           grep -q 'src="growth.js"' index.html
+          grep -q 'src="home-map.js"' index.html
+          grep -q 'id="heroMap"' index.html
+          grep -q 'href="/voting-map"' index.html
           grep -q 'href="/check-in"' index.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/check-in"' check-in.html
           grep -q 'I VOTED' check-in.html
@@ -82,8 +89,13 @@ jobs:
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/voting-map"' voting-map.html
           grep -q 'OFFICIAL VOTING LOCATION' voting-map.html
           grep -q 'official.votinginfotool.org' voting-map.html
+          grep -q 'mobileStateSelect' voting-map.html
+          grep -q 'mobile-checkin-bar' voting-map.html
+          grep -q 'state-total-label' voting-map.js
+          grep -q 'range(\[0,30\])' voting-map.js
           grep -q 'us-atlas@3' voting-map.js
           grep -q 'lgvtt-vote-checkin' voting-map.js
+          grep -q 'HOME_CHECKIN_ENDPOINT' home-map.js
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/partner-kit"' partner-kit.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/register"' register.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/voter-help"' voter-help.html
