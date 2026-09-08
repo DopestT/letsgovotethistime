@@ -33,8 +33,6 @@ The project does not accept ride requests, assign drivers, pay fares, reimburse 
 
 Uber and Lyft have offered voter-transportation features or promotions in prior election cycles. Any 2026 offer must be confirmed from the provider before it is presented as current. Availability, prices, promotions, eligibility, accessibility options, service areas, and provider terms remain controlled by the transportation company.
 
-ROUTELY is a separate project and is not the public voter-ride operator for Let's Go Vote This Time.
-
 ## Trusted election data
 
 This site intentionally does not maintain its own polling-place database. Voters are sent to the U.S. Election Assistance Commission and linked state/local election officials for current location, hours, identification rules, and voting options. The national map keeps official voting-location information visually and technically separate from anonymous self-reported check-ins.
