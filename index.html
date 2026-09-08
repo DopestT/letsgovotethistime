@@ -22,6 +22,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .hero-map-preview{margin-top:48px;background:#07110d;color:#fff;border:1px solid #0b0d12;box-shadow:10px 10px 0 #0b0d12;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.55fr);min-height:390px;overflow:hidden}.hero-map-stage{position:relative;background:radial-gradient(circle at 48% 46%,#143122 0,#07110d 68%);padding:16px}.hero-map-stage svg{width:100%;height:100%;min-height:350px;display:block}.hero-state{fill:#183326;stroke:#789487;stroke-width:.7}.hero-dot{fill:#50ef9b;fill-opacity:.9;stroke:#07110d;stroke-width:1}.hero-dot.notyet{fill:#fff;fill-opacity:.82}.hero-map-copy{padding:28px;border-left:1px solid #345044;display:flex;flex-direction:column;justify-content:center}.hero-map-copy .eyebrow{color:#50ef9b;margin-bottom:10px}.hero-map-copy h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(33px,4vw,50px);line-height:.92;letter-spacing:-.05em;margin:0 0 18px}.hero-map-live-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 18px}.hero-map-live-stats div{border-top:1px solid #345044;padding-top:10px}.hero-map-live-stats strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:24px}.hero-map-live-stats span{font-size:9px;font-weight:900;letter-spacing:.07em;color:#aebdb5}.hero-map-copy p{font-size:13px;line-height:1.5;color:#c8d2cc;margin:0 0 16px}.hero-map-copy .button{border-color:#50ef9b;background:#50ef9b;color:#07110d}.hero-map-copy .button:hover{background:#fff;border-color:#fff}.hero-map-status{font-size:11px!important;color:#9caf9f!important;margin-top:10px!important}
+    @media(max-width:900px){.hero-map-preview{grid-template-columns:1fr}.hero-map-copy{border-left:0;border-top:1px solid #345044}.hero-map-stage svg{min-height:310px}}
+    @media(max-width:580px){.hero-map-preview{margin-top:34px;box-shadow:6px 6px 0 #0b0d12}.hero-map-stage{padding:6px}.hero-map-stage svg{min-height:230px}.hero-map-copy{padding:20px}.hero-map-live-stats strong{font-size:20px}.hero-map-copy .button{width:100%}}
+  </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -47,6 +52,7 @@
     <nav aria-label="Main navigation">
       <a href="#location">Find my location</a>
       <a href="#ride">Plan my ride</a>
+      <a href="/voting-map">Voting map</a>
       <a href="/check-in">Did you vote?</a>
       <a href="/partner-kit">Partner kit</a>
     </nav>
@@ -61,6 +67,24 @@
         <a class="button primary" href="#location">FIND WHERE I VOTE <span>→</span></a>
         <a class="button ghost" href="#ride">PLAN MY RIDE</a>
         <a class="button ghost" href="/check-in">DID YOU VOTE?</a>
+      </div>
+
+      <div class="hero-map-preview" aria-label="Live anonymous voting check-in map preview">
+        <div class="hero-map-stage">
+          <svg id="heroMap" viewBox="0 0 975 610" role="img" aria-label="United States anonymous check-in activity preview"></svg>
+        </div>
+        <div class="hero-map-copy">
+          <div class="eyebrow">LIVE ANONYMOUS CHECK-INS</div>
+          <h2>LIGHT UP<br>THE COUNTRY.</h2>
+          <div class="hero-map-live-stats">
+            <div><strong id="heroMapTotal">—</strong><span>CHECK-INS</span></div>
+            <div><strong id="heroMapVoted">—</strong><span>VOTED</span></div>
+            <div><strong id="heroMapNotYet">—</strong><span>NOT YET</span></div>
+          </div>
+          <p>Self-reported check-ins are shown only in aggregate and are kept separate from official election information.</p>
+          <a class="button" href="/voting-map">OPEN THE FULL MAP <span>→</span></a>
+          <p class="hero-map-status" id="heroMapStatus">No exact check-in location is displayed.</p>
+        </div>
       </div>
 
       <div class="countdown-wrap" aria-label="Countdown to Election Day">
@@ -171,6 +195,7 @@
           <p>Say only <strong>I Voted</strong> or <strong>Not Yet</strong>, choose your state, and optionally enter a ZIP code that is immediately reduced to a three-digit geographic bucket. No account, candidate, party, or ballot-choice questions.</p>
         </div>
         <a class="button light-button" href="/check-in">ADD MY CHECK-IN <span>→</span></a>
+        <a class="button ghost" href="/voting-map" style="margin-left:8px">SEE THE NATIONAL MAP <span>→</span></a>
         <p class="fine" style="margin-top:14px">Check-ins are voluntary self-reports, not official turnout. One anonymous browser identity updates one point; raw IP addresses are not stored.</p>
       </div>
     </section>
@@ -198,6 +223,7 @@
       <p>Nonpartisan voter access. Official election information stays with election officials. Transportation arrangements stay with the voter and the chosen provider.</p>
     </div>
     <div class="footer-links">
+      <a href="/voting-map">National voting map ↗</a>
       <a href="/check-in">Anonymous vote check-in ↗</a>
       <a href="https://www.eac.gov/vote" target="_blank" rel="noopener">EAC voter information ↗</a>
       <a href="https://vote.gov/" target="_blank" rel="noopener">Vote.gov ↗</a>
@@ -207,6 +233,9 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <script src="home-map.js"></script>
   <script src="growth.js"></script>
   <script src="app.js"></script>
 </body>
