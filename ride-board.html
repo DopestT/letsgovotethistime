@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#07110d" />
+  <meta name="theme-color" content="#04100c" />
   <meta name="description" content="A verification-first 2026 voter transportation board for rideshare, transit, paratransit, 211, and local ride programs." />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <link rel="canonical" href="https://letsgovotethistime.com/ride-board" />
@@ -18,87 +18,102 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <style>
-    body{background:#07110d;color:#fff}.board-shell{width:min(1240px,calc(100% - 32px));margin:auto}.topline{background:#50ef9b;color:#07110d}.nav a,.brand{color:#fff}.board-hero{padding:58px 0 26px}.board-hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(56px,8vw,106px);line-height:.87;letter-spacing:-.06em;margin:8px 0 20px}.board-hero p{max-width:760px;color:#cbd7d0;font-size:18px;line-height:1.55}.status-key{display:flex;flex-wrap:wrap;gap:9px;margin:24px 0}.status-pill{border:1px solid #456050;padding:8px 11px;font-size:10px;font-weight:900;letter-spacing:.08em}.confirmed{background:#50ef9b;color:#07110d;border-color:#50ef9b}.prior{background:#272219;color:#ffd166;border-color:#715e34}.check{background:#111d17;color:#d9e2dd}.local{background:#172034;color:#b8ccff;border-color:#34496f}.board-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:28px 0 40px}.ride-card{border:1px solid #345044;background:#0d1b15;padding:22px;display:flex;flex-direction:column;gap:14px}.ride-card h2{font-family:'Space Grotesk',sans-serif;font-size:34px;letter-spacing:-.04em;margin:0}.ride-card p{margin:0;color:#cbd7d0;line-height:1.55}.meta{display:grid;grid-template-columns:120px 1fr;gap:8px;border-top:1px solid #345044;padding-top:13px;font-size:12px}.meta b{color:#9fb2a8;letter-spacing:.05em}.card-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:auto}.card-actions .button{min-height:48px}.board-section{border-top:1px solid #345044;padding:38px 0}.board-section h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,5vw,62px);letter-spacing:-.05em;margin:0 0 12px}.board-section>p{color:#cbd7d0;max-width:780px;line-height:1.55}.submit-card{background:#0d1b15;border:1px solid #345044;padding:22px;margin-top:20px}.submit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.submit-card input,.submit-card textarea,.submit-card select{width:100%;background:#07110d;color:#fff;border:1px solid #456050;padding:13px}.submit-card textarea{min-height:110px;resize:vertical}.submit-card label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:7px;color:#aebdb5}.span2{grid-column:1/-1}.submit-result{min-height:24px;margin-top:12px;font-size:13px;color:#bcd0c4}.fineprint{font-size:11px;color:#91a298;line-height:1.5}.source-note{border:1px solid #345044;background:#0a1611;padding:16px;margin-top:20px;font-size:12px;line-height:1.55;color:#b8c8bf}.source-note a{color:#fff;text-decoration:underline;text-underline-offset:3px}@media(max-width:760px){.board-grid,.submit-grid{grid-template-columns:1fr}.span2{grid-column:auto}.board-hero{padding-top:38px}.board-hero h1{font-size:52px}.meta{grid-template-columns:1fr}.card-actions .button{width:100%}}
+    :root{--bg:#04100c;--panel:#071914;--panel2:#0a2019;--line:#174435;--text:#fff;--muted:#bed0c7;--green:#27f6a3;--green2:#6affc0;--yellow:#ffd949;--blue:#44b5ff;--violet:#ba69ff}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 72% 2%,rgba(39,246,163,.08),transparent 32%),var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}.board-shell{width:min(1500px,calc(100% - 44px));margin:auto}.topline{background:var(--green);color:#03120c;font-weight:900;letter-spacing:.08em}.nav{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid rgba(74,128,106,.22)}.nav a,.brand{color:#fff}.nav nav{display:flex;align-items:center;gap:27px;flex-wrap:wrap}.nav nav a{font-size:13px;font-weight:700;text-decoration:none}.nav nav a.active{color:var(--green);position:relative}.nav nav a.active:after{content:'';position:absolute;left:0;right:0;bottom:-12px;height:2px;background:var(--green)}.nav .reminder{border:1px solid var(--green);padding:13px 20px;border-radius:5px;color:var(--green)}
+    .board-hero{position:relative;min-height:510px;padding:62px 0 34px;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(450px,.92fr);gap:32px;align-items:center;overflow:hidden}.hero-copy{position:relative;z-index:2}.hero-kicker{color:var(--green);font-weight:900;letter-spacing:.36em;font-size:15px;margin-bottom:10px}.board-hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(68px,8vw,126px);line-height:.82;letter-spacing:-.065em;margin:0}.board-hero h1 span{color:var(--green)}.hero-lead{max-width:760px;font-size:22px;line-height:1.35;margin:18px 0 6px}.hero-sub{color:var(--muted);font-size:15px;margin:0 0 28px}.hero-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:30px}.hero-step{display:grid;grid-template-columns:48px 1fr;gap:11px;align-items:start}.hero-step .icon{width:48px;height:48px;border:2px solid var(--green);border-radius:50%;display:grid;place-items:center;font-size:22px;background:rgba(39,246,163,.05)}.hero-step b{display:block;color:var(--green);font-size:11px;letter-spacing:.08em;margin:3px 0 4px}.hero-step span{font-size:12px;color:#e5efea;line-height:1.35}.hero-scene{height:405px;position:relative;border:1px solid rgba(66,150,117,.35);background:linear-gradient(180deg,#0b2630 0%,#071412 52%,#03100c 100%);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.35)}.hero-scene:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 65% 26%,rgba(255,210,108,.23),transparent 25%),linear-gradient(90deg,rgba(0,0,0,.35),transparent 45%)}.city{position:absolute;left:0;right:0;bottom:92px;height:210px;display:flex;align-items:flex-end;gap:8px;padding:0 20px}.bld{flex:1;min-width:30px;background:linear-gradient(180deg,#153036,#071a18);border:1px solid #1c4541;position:relative}.bld:after{content:'';position:absolute;inset:10px 7px;background:repeating-linear-gradient(180deg,rgba(255,215,120,.68) 0 3px,transparent 3px 13px);opacity:.55}.road{position:absolute;left:-8%;right:-8%;bottom:-24px;height:170px;background:linear-gradient(180deg,#07110f,#020806);transform:skewX(-12deg);border-top:1px solid #265b4c}.road:after{content:'';position:absolute;left:5%;right:5%;top:69px;height:2px;background:repeating-linear-gradient(90deg,#cfe8dd 0 55px,transparent 55px 110px);opacity:.6}.car{position:absolute;right:7%;bottom:56px;width:68%;height:110px;z-index:3}.car svg{width:100%;height:100%;filter:drop-shadow(0 15px 20px rgba(0,0,0,.45))}.hero-quote{position:absolute;left:8%;top:28px;font-family:Georgia,serif;font-style:italic;font-size:30px;line-height:1.08;transform:rotate(-7deg);z-index:4;text-shadow:0 2px 10px #000}.hero-sign{position:absolute;right:18px;top:30px;width:145px;height:205px;border:1px solid #1b5f50;background:rgba(3,17,13,.84);padding:18px;display:flex;align-items:center;font-family:'Space Grotesk',sans-serif;font-size:23px;font-weight:700;line-height:1.15}.hero-sign:after{content:'';position:absolute;left:22px;right:22px;bottom:24px;height:5px;background:var(--green);transform:rotate(-8deg)}
+    .status-key{display:grid;grid-template-columns:repeat(4,1fr) minmax(260px,1.3fr);gap:8px;border:1px solid var(--line);background:#061711;padding:13px 16px;align-items:center;margin:12px 0 18px}.status-item{display:flex;align-items:center;gap:10px;font-size:12px}.status-dot{width:22px;height:22px;border-radius:50%;flex:0 0 auto}.status-dot.confirmed{background:var(--green)}.status-dot.prior{background:var(--yellow)}.status-dot.check{background:var(--blue)}.status-dot.local{background:var(--violet)}.status-note{font-size:11px;color:#d5e3dc;border-left:1px solid var(--line);padding-left:18px;line-height:1.35}
+    .board-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;margin:0 0 18px}.ride-card{border:1px solid #1b5e49;background:linear-gradient(180deg,#071d16,#061711);min-height:470px;display:flex;flex-direction:column;overflow:hidden}.card-visual{height:155px;position:relative;overflow:hidden;border-bottom:1px solid #1b5e49;display:flex;align-items:flex-end;padding:15px}.card-visual:before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(2,10,7,.8))}.visual-uber{background:linear-gradient(135deg,#1b2220 0,#0a0f0d 55%,#315147 100%)}.visual-lyft{background:linear-gradient(135deg,#ff1fa8,#4b0f70 45%,#0a1720 100%)}.visual-transit{background:linear-gradient(135deg,#153b45,#0f241b 55%,#d59322 100%)}.visual-access{background:linear-gradient(135deg,#182f2c,#0a1513 58%,#647c72)}.visual-211{background:linear-gradient(135deg,#e9f3ff,#3d86df 48%,#0a2858)}.visual-local{background:linear-gradient(135deg,#173d2d,#09150f 55%,#375031)}.card-mark{position:relative;z-index:2;font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:700;letter-spacing:-.05em}.visual-lyft .card-mark{font-size:36px}.card-icon{position:absolute;right:18px;top:17px;font-size:58px;opacity:.85;z-index:2}.ride-body{padding:15px 14px 16px;display:flex;flex-direction:column;gap:10px;flex:1}.status-pill{align-self:flex-start;padding:6px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.06em;border:1px solid currentColor}.pill-prior{color:#201900;background:var(--yellow)}.pill-check{color:#061521;background:var(--blue)}.pill-local{color:#100819;background:var(--violet)}.pill-confirmed{color:#03120c;background:var(--green)}.ride-card h2{font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.05;margin:0}.ride-card p{font-size:12px;line-height:1.45;color:#d6e3dd;margin:0}.source-link{font-size:11px;font-weight:700;color:#70d8ff;text-decoration:underline;text-underline-offset:3px}.card-actions{margin-top:auto}.card-actions .button{width:100%;min-height:45px;padding:11px 10px;font-size:11px;text-align:center}.button.blue{background:var(--blue);border-color:var(--blue);color:#05131b}.button.violet{background:transparent;border-color:var(--violet);color:#dca6ff}.button.yellow{background:transparent;border-color:var(--yellow);color:#ffe979}.button.green{background:transparent;border-color:var(--green);color:var(--green)}
+    .action-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:16px 0 22px}.action-panel{min-height:150px;border:1px solid #1a6049;background:linear-gradient(135deg,#071b14,#06130f);padding:22px;display:grid;grid-template-columns:70px 1fr;gap:18px;align-items:center;position:relative;overflow:hidden}.action-panel:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 10% 80%,rgba(39,246,163,.08),transparent 35%);pointer-events:none}.action-icon{width:70px;height:70px;border:2px solid var(--green);border-radius:50%;display:grid;place-items:center;font-size:31px;position:relative;z-index:1}.action-panel h3{font-size:13px;letter-spacing:.08em;color:var(--green);margin:0 0 6px}.action-panel p{font-size:12px;line-height:1.45;color:#d9e5df;margin:0 0 12px}.action-panel .button{min-height:40px;padding:9px 13px;font-size:10px;width:100%;text-align:center}.action-map{background-image:linear-gradient(rgba(3,17,13,.82),rgba(3,17,13,.92)),repeating-linear-gradient(25deg,#174233 0 1px,transparent 1px 28px),repeating-linear-gradient(115deg,#12372b 0 1px,transparent 1px 34px)}
+    .board-section{border-top:1px solid var(--line);padding:42px 0}.board-section h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(42px,5vw,68px);letter-spacing:-.05em;margin:0 0 12px}.board-section>p{color:var(--muted);max-width:850px;line-height:1.55}.submit-card{background:#071a14;border:1px solid #1a6049;padding:22px;margin-top:20px}.submit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.submit-card input,.submit-card textarea,.submit-card select{width:100%;background:#03110c;color:#fff;border:1px solid #285e4b;padding:13px}.submit-card textarea{min-height:110px;resize:vertical}.submit-card label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:7px;color:#aebdb5}.span2{grid-column:1/-1}.submit-result{min-height:24px;margin-top:12px;font-size:13px;color:#bcd0c4}.fineprint{font-size:11px;color:#91a298;line-height:1.5}.source-note{border:1px solid #345044;background:#04130e;padding:16px;margin-top:20px;font-size:12px;line-height:1.55;color:#b8c8bf}.footer{border-top:1px solid #173d30;padding-top:24px}.footer a{color:#fff}
+    @media(max-width:1280px){.board-grid{grid-template-columns:repeat(3,1fr)}.board-hero{grid-template-columns:1fr .9fr}.hero-steps{grid-template-columns:repeat(2,1fr)}.status-key{grid-template-columns:repeat(2,1fr) 1fr}.status-note{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);padding:10px 0 0}.nav nav{gap:16px}}
+    @media(max-width:900px){.board-shell{width:min(100% - 24px,1500px)}.board-hero{grid-template-columns:1fr;padding-top:42px}.hero-scene{height:330px}.board-hero h1{font-size:72px}.hero-lead{font-size:18px}.board-grid{grid-template-columns:repeat(2,1fr)}.action-row{grid-template-columns:1fr}.nav{align-items:flex-start;padding:18px 0;flex-direction:column}.nav nav{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}.nav .reminder{display:none}}
+    @media(max-width:620px){.topline{font-size:10px}.board-hero h1{font-size:56px}.hero-kicker{font-size:11px;letter-spacing:.22em}.hero-lead{font-size:17px}.hero-steps{grid-template-columns:1fr 1fr;gap:13px}.hero-step{grid-template-columns:40px 1fr}.hero-step .icon{width:40px;height:40px;font-size:18px}.hero-scene{height:270px}.hero-sign{width:110px;height:160px;font-size:17px}.hero-quote{font-size:21px}.car{width:76%;bottom:44px}.status-key{grid-template-columns:1fr 1fr}.board-grid{grid-template-columns:1fr}.ride-card{min-height:0}.card-visual{height:170px}.action-panel{grid-template-columns:58px 1fr;padding:16px}.action-icon{width:58px;height:58px}.submit-grid{grid-template-columns:1fr}.span2{grid-column:auto}}
   </style>
 </head>
 <body>
   <div class="topline"><span class="pulse"></span>2026 RIDE BOARD · VERIFIED BEFORE PUBLISHED</div>
   <header class="nav board-shell">
     <a class="brand" href="/"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></a>
-    <nav><a href="/voting-map">Voting map</a><a href="/check-in">Check in</a><a href="/rides-to-polls">Ride guide</a><a href="/voter-help">Voter help</a></nav>
+    <nav aria-label="Ride Board navigation">
+      <a href="/">Plan your vote</a>
+      <a href="/voting-map">Voting map</a>
+      <a href="/#location">Find your state</a>
+      <a class="active" href="/ride-board">Rides to the polls</a>
+      <a href="/voter-help">Resources</a>
+      <a class="reminder" href="/#reminders">GET REMINDERS</a>
+    </nav>
   </header>
 
   <main class="board-shell">
     <section class="board-hero">
-      <div class="eyebrow green">VOTER TRANSPORTATION · 2026</div>
-      <h1>THE RIDE<br>BOARD.</h1>
-      <p>See what is actually verified before you make a transportation plan. Let's Go Vote This Time does not book, dispatch, pay for, reimburse, or guarantee rides. You make the arrangement directly with the provider.</p>
-      <div class="status-key">
-        <span class="status-pill confirmed">CONFIRMED 2026</span>
-        <span class="status-pill prior">PRIOR-CYCLE ONLY</span>
-        <span class="status-pill check">CHECK DIRECTLY</span>
-        <span class="status-pill local">LOCAL RESOURCE</span>
+      <div class="hero-copy">
+        <div class="hero-kicker">RIDES TO THE POLLS</div>
+        <h1>THE RIDE <span>BOARD</span></h1>
+        <p class="hero-lead">Find transportation options to make your plan, get to the polls, and make your vote count.</p>
+        <p class="hero-sub">You make the arrangements. We provide verified information and resources.</p>
+        <div class="hero-steps" aria-label="Ride Board process">
+          <div class="hero-step"><div class="icon">🚗</div><div><b>FIND A RIDE</b><span>Explore transportation options in your area.</span></div></div>
+          <div class="hero-step"><div class="icon">▣</div><div><b>MAKE YOUR PLAN</b><span>Know dates, hours, destination and backup.</span></div></div>
+          <div class="hero-step"><div class="icon">✓</div><div><b>VOTE</b><span>Get to your verified voting location.</span></div></div>
+          <div class="hero-step"><div class="icon">●●</div><div><b>LIGHT UP THE MAP</b><span>Check in anonymously after you vote.</span></div></div>
+        </div>
       </div>
+      <div class="hero-scene" aria-hidden="true">
+        <div class="hero-quote">Same people.<br>A brighter<br>tomorrow.</div>
+        <div class="hero-sign">RIDES<br>VOTES<br>STRONGER<br>COMMUNITIES</div>
+        <div class="city">
+          <div class="bld" style="height:32%"></div><div class="bld" style="height:48%"></div><div class="bld" style="height:70%"></div><div class="bld" style="height:42%"></div><div class="bld" style="height:82%"></div><div class="bld" style="height:58%"></div><div class="bld" style="height:91%"></div><div class="bld" style="height:63%"></div><div class="bld" style="height:76%"></div><div class="bld" style="height:45%"></div>
+        </div>
+        <div class="road"></div>
+        <div class="car">
+          <svg viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg"><path fill="#07110f" stroke="#3a5e53" stroke-width="3" d="M42 103c19-37 59-50 116-53l91-5 73-26h109c49 0 88 16 109 45l35 10 12 31-22 18H58l-25-18z"/><path fill="#10231e" stroke="#436b5e" stroke-width="3" d="M238 46l72-21h105c30 0 55 8 73 24z"/><path fill="#0a1513" stroke="#2b473f" stroke-width="4" d="M139 122a31 31 0 1 0 62 0 31 31 0 1 0-62 0M443 122a31 31 0 1 0 62 0 31 31 0 1 0-62 0"/><circle cx="170" cy="122" r="13" fill="#49665d"/><circle cx="474" cy="122" r="13" fill="#49665d"/><path d="M504 67h50l18 17h-57z" fill="#ef4c3d" opacity=".8"/></svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-key" aria-label="Ride Board status key">
+      <div class="status-item"><span class="status-dot confirmed"></span><span>Confirmed 2026 program</span></div>
+      <div class="status-item"><span class="status-dot prior"></span><span>Prior-cycle only</span></div>
+      <div class="status-item"><span class="status-dot check"></span><span>Check directly with provider</span></div>
+      <div class="status-item"><span class="status-dot local"></span><span>Local resource · varies by area</span></div>
+      <div class="status-note">Offers and programs can change. Always confirm details with official sources before relying on transportation.</div>
     </section>
 
     <section class="board-grid" aria-label="Verified transportation options">
       <article class="ride-card">
-        <span class="status-pill prior">PRIOR-CYCLE ONLY</span>
-        <h2>UBER</h2>
-        <p>Uber ran an official 2024 “Go Vote!” experience with polling-place lookup and an Election Day discount. We have not verified a nationwide 2026 voter offer yet.</p>
-        <div class="meta"><b>2026 STATUS</b><span>No nationwide voter-specific promotion verified as of September 8, 2026.</span></div>
-        <div class="meta"><b>WHAT TO DO</b><span>Check the Uber app/site directly before relying on any election offer.</span></div>
-        <div class="card-actions"><a class="button primary" href="https://m.uber.com/looking" target="_blank" rel="noopener">OPEN UBER ↗</a><a class="button ghost" href="https://www.uber.com/us/en/newsroom/vote-2024/" target="_blank" rel="noopener">2024 SOURCE ↗</a></div>
+        <div class="card-visual visual-uber"><span class="card-mark">Uber</span><span class="card-icon">🚘</span></div>
+        <div class="ride-body"><span class="status-pill pill-prior">PRIOR-CYCLE ONLY</span><h2>Uber</h2><p>Uber ran an official voter-ride promotion in 2024. No nationwide 2026 voter-specific offer has been verified yet.</p><a class="source-link" href="https://www.uber.com/us/en/newsroom/vote-2024/" target="_blank" rel="noopener">View 2024 program ↗</a><div class="card-actions"><a class="button yellow" href="https://m.uber.com/looking" target="_blank" rel="noopener">CHECK FOR 2026 UPDATES</a></div></div>
       </article>
-
       <article class="ride-card">
-        <span class="status-pill check">CHECK DIRECTLY</span>
-        <h2>LYFT</h2>
-        <p>Lyft describes a biennial, nonpartisan Voting Access Program that has provided free and discounted rides to the polls. We have not verified a nationwide 2026 promo code yet.</p>
-        <div class="meta"><b>2026 STATUS</b><span>Voting Access Program is publicly described; current 2026 nationwide offer details are not yet verified.</span></div>
-        <div class="meta"><b>WHAT TO DO</b><span>Check Lyft and Lyft Up for current availability, eligibility, and local offers.</span></div>
-        <div class="card-actions"><a class="button primary" href="https://ride.lyft.com/" target="_blank" rel="noopener">OPEN LYFT ↗</a><a class="button ghost" href="https://www.lyft.com/lyftup/programs" target="_blank" rel="noopener">LYFT UP ↗</a></div>
+        <div class="card-visual visual-lyft"><span class="card-mark">Lyft</span><span class="card-icon">🚗</span></div>
+        <div class="ride-body"><span class="status-pill pill-check">CHECK DIRECTLY</span><h2>Lyft</h2><p>Lyft publicly describes a biennial Voting Access Program. Current nationwide 2026 details have not yet been verified.</p><a class="source-link" href="https://www.lyft.com/lyftup/programs" target="_blank" rel="noopener">Visit Lyft Up ↗</a><div class="card-actions"><a class="button blue" href="https://ride.lyft.com/" target="_blank" rel="noopener">CHECK FOR 2026 DETAILS</a></div></div>
       </article>
-
       <article class="ride-card">
-        <span class="status-pill local">LOCAL RESOURCE</span>
-        <h2>PUBLIC TRANSIT</h2>
-        <p>Some transit agencies choose fare-free service on election days. The Federal Transit Administration says fare-free election days are permissible and reminds agencies to apply accessibility requirements consistently.</p>
-        <div class="meta"><b>2026 STATUS</b><span>Varies by local transit agency.</span></div>
-        <div class="meta"><b>WHAT TO DO</b><span>Check your local agency’s Election Day schedule, fares, service changes, and last-trip times.</span></div>
-        <div class="card-actions"><a class="button primary" href="https://www.transit.dot.gov/funding/grants/transit-programs-increase-access-voting" target="_blank" rel="noopener">FTA GUIDANCE ↗</a><a class="button ghost" href="/rides-to-polls">PLAN ROUTE →</a></div>
+        <div class="card-visual visual-transit"><span class="card-mark">TRANSIT</span><span class="card-icon">🚌</span></div>
+        <div class="ride-body"><span class="status-pill pill-local">LOCAL / VARIES</span><h2>Public Transit</h2><p>Some transit agencies offer fare-free or expanded service on election days. Service, fares and hours vary locally.</p><a class="source-link" href="https://www.transit.dot.gov/funding/grants/transit-programs-increase-access-voting" target="_blank" rel="noopener">FTA voting-access info ↗</a><div class="card-actions"><a class="button green" href="/rides-to-polls">FIND LOCAL TRANSIT</a></div></div>
       </article>
-
       <article class="ride-card">
-        <span class="status-pill local">LOCAL RESOURCE</span>
-        <h2>PARATRANSIT / ACCESSIBLE RIDES</h2>
-        <p>Accessible transportation is handled locally. If you need an accommodation or accessible polling place, contact your state/local election office and your local transit or paratransit provider ahead of time.</p>
-        <div class="meta"><b>2026 STATUS</b><span>Local eligibility, reservation windows, fares, and service areas vary.</span></div>
-        <div class="meta"><b>WHAT TO DO</b><span>Reserve early where required and verify the polling place is accessible before traveling.</span></div>
-        <div class="card-actions"><a class="button primary" href="https://www.usa.gov/voter-accessibility-laws" target="_blank" rel="noopener">ACCESSIBILITY INFO ↗</a><a class="button ghost" href="/voter-help">VOTER HELP →</a></div>
+        <div class="card-visual visual-access"><span class="card-mark">ACCESS</span><span class="card-icon">♿</span></div>
+        <div class="ride-body"><span class="status-pill pill-local">LOCAL / VARIES</span><h2>Paratransit & Accessibility</h2><p>Local paratransit services can help voters with disabilities and limited mobility get to the polls.</p><a class="source-link" href="https://www.usa.gov/voter-accessibility-laws" target="_blank" rel="noopener">Accessibility information ↗</a><div class="card-actions"><a class="button violet" href="/voter-help">FIND PARATRANSIT HELP</a></div></div>
       </article>
-
       <article class="ride-card">
-        <span class="status-pill local">LOCAL RESOURCE</span>
-        <h2>211</h2>
-        <p>211 connects people to local community resources, including transportation assistance. A local 211 may know about nonprofit, community, or other transportation help in your area.</p>
-        <div class="meta"><b>2026 STATUS</b><span>National referral network; specific voting-ride programs depend on local resources.</span></div>
-        <div class="meta"><b>WHAT TO DO</b><span>Call 211 or search your local 211. Ask specifically about transportation and Election Day resources.</span></div>
-        <div class="card-actions"><a class="button primary" href="https://www.211.org/about-us/your-local-211" target="_blank" rel="noopener">FIND LOCAL 211 ↗</a><a class="button ghost" href="tel:211">CALL 211</a></div>
+        <div class="card-visual visual-211"><span class="card-mark">211</span><span class="card-icon">☎</span></div>
+        <div class="ride-body"><span class="status-pill pill-local">NATIONAL RESOURCE</span><h2>211</h2><p>Call 2-1-1 or use your local 211 to find transportation resources, community programs and other support services.</p><a class="source-link" href="https://www.211.org/about-us/your-local-211" target="_blank" rel="noopener">Visit 211.org ↗</a><div class="card-actions"><a class="button violet" href="https://www.211.org/about-us/your-local-211" target="_blank" rel="noopener">FIND HELP NEAR YOU</a></div></div>
       </article>
-
       <article class="ride-card">
-        <span class="status-pill check">CHECK DIRECTLY</span>
-        <h2>LOCAL NONPROFIT / COMMUNITY RIDES</h2>
-        <p>Churches, nonprofits, senior programs, disability organizations, campuses, civic groups, and local coalitions sometimes offer rides or transportation assistance. Availability can change quickly.</p>
-        <div class="meta"><b>2026 STATUS</b><span>Only programs we can verify will be added to this board.</span></div>
-        <div class="meta"><b>WHAT TO DO</b><span>Use 211, your local election office, and community organizations to identify options—then confirm directly with the provider.</span></div>
-        <div class="card-actions"><a class="button primary" href="#submit-resource">SUBMIT A RESOURCE ↓</a></div>
+        <div class="card-visual visual-local"><span class="card-mark">LOCAL</span><span class="card-icon">➜</span></div>
+        <div class="ride-body"><span class="status-pill pill-local">LOCAL / VARIES</span><h2>Local & Community Programs</h2><p>Nonprofits, campuses, disability organizations, senior programs and community groups may offer transportation help.</p><a class="source-link" href="#submit-resource">Submit a verified resource ↓</a><div class="card-actions"><a class="button violet" href="#submit-resource">BROWSE / SUBMIT LOCAL RESOURCES</a></div></div>
       </article>
     </section>
 
+    <section class="action-row" aria-label="Ride Board actions">
+      <article class="action-panel action-map"><div class="action-icon">⌖</div><div><h3>FIND YOUR POLLING PLACE</h3><p>Get official voting-location information, early-voting options and important dates for your state.</p><a class="button primary" href="/#location">FIND WHERE I VOTE ↗</a></div></article>
+      <article class="action-panel"><div class="action-icon">●●</div><div><h3>SUBMIT A LOCAL RIDE RESOURCE</h3><p>Know a legitimate transportation program? Send it for private verification before publication.</p><a class="button green" href="#submit-resource">SUBMIT A RESOURCE</a></div></article>
+      <article class="action-panel"><div class="action-icon">↗</div><div><h3>SHARE THE RIDE BOARD</h3><p>Help others make a plan. Share this page with your community, workplace, school or organization.</p><button class="button green" id="shareRideBoard" type="button">SHARE THIS PAGE</button></div></article>
+    </section>
+
     <section class="board-section" id="submit-resource">
-      <div class="eyebrow green">HELP EXPAND THE BOARD</div>
+      <div class="hero-kicker">HELP EXPAND THE BOARD</div>
       <h2>SUBMIT A LOCAL RIDE RESOURCE.</h2>
       <p>Know a legitimate 2026 transportation program? Send it for verification. Submissions are private and do not appear publicly until reviewed against an official provider, government, nonprofit, transit-agency, or similarly authoritative source.</p>
       <form class="submit-card" id="rideResourceForm">
@@ -118,7 +133,7 @@
     </section>
   </main>
 
-  <footer class="footer board-shell"><div><div class="brand footer-brand"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></div><p>Nonpartisan voter access. Transportation arrangements stay with the voter and the chosen provider.</p></div><div class="footer-links"><a href="/voting-map">Voting map ↗</a><a href="/rides-to-polls">Ride guide ↗</a><a href="/check-in">Anonymous check-in ↗</a></div></footer>
+  <footer class="footer board-shell"><div><div class="brand footer-brand"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></div><p>Inform · plan · show up · together.</p></div><div class="footer-links"><a href="/voting-map">Voting map ↗</a><a href="/rides-to-polls">Ride guide ↗</a><a href="/check-in">Anonymous check-in ↗</a></div></footer>
   <script src="growth.js"></script>
   <script src="ride-board.js"></script>
 </body>
