@@ -36,7 +36,7 @@ rideForm?.addEventListener('submit', async (event) => {
 
     rideForm.reset();
     rideResult.textContent = 'Received. We’ll verify the source before anything appears on the public Ride Board.';
-    window.LGVTTGrowth?.track?.('ride_resource_submit_success', { path: '/ride-board' });
+    window.lgvttTrack?.('ride_resource_submit_success');
   } catch (error) {
     rideResult.textContent = error?.message || 'The submission could not be saved right now.';
   } finally {
@@ -44,4 +44,4 @@ rideForm?.addEventListener('submit', async (event) => {
   }
 });
 
-window.LGVTTGrowth?.track?.('ride_board_open', { path: '/ride-board' });
+window.lgvttTrack?.('ride_board_open');
