@@ -1,0 +1,23 @@
+# Let's Go Vote This Time
+
+> Nonpartisan 2026 voter-access utility for official voting information, voter registration resources, self-service transportation planning, voter-help resources, and an anonymous self-reported voting check-in map.
+
+## Core resources
+- Home / voting plan: https://letsgovotethistime.com/
+- 2026 interactive voting map: https://letsgovotethistime.com/voting-map
+- Anonymous Voted / Not Yet check-in: https://letsgovotethistime.com/check-in
+- Register to vote: https://letsgovotethistime.com/register
+- Rides to the polls 2026: https://letsgovotethistime.com/rides-to-polls
+- 2026 Ride Board: https://letsgovotethistime.com/ride-board
+- Voter help / Election Protection resources: https://letsgovotethistime.com/voter-help
+- National Voter Registration Day 2026: https://letsgovotethistime.com/national-voter-registration-day
+- Partner kit: https://letsgovotethistime.com/partner-kit
+
+## Important data boundaries
+- Official election information is linked from official election authorities and is kept separate from anonymous check-ins.
+- Voting check-ins are voluntary self-reports, not official turnout statistics or proof that a ballot was cast.
+- The site does not ask how a person voted, which candidate they support, or their party affiliation.
+- The site does not book, dispatch, pay for, reimburse, or guarantee transportation. Voters make their own arrangements directly with providers.
+
+## Canonical domain
+https://letsgovotethistime.com/
