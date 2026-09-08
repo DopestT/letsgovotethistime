@@ -5,13 +5,22 @@ const stateMeta = {
   '01':['AL','Alabama','alabama'],'02':['AK','Alaska','alaska'],'04':['AZ','Arizona','arizona'],'05':['AR','Arkansas','arkansas'],'06':['CA','California','california'],'08':['CO','Colorado','colorado'],'09':['CT','Connecticut','connecticut'],'10':['DE','Delaware','delaware'],'11':['DC','District of Columbia','district-columbia'],'12':['FL','Florida','florida'],'13':['GA','Georgia','georgia'],'15':['HI','Hawaii','hawaii'],'16':['ID','Idaho','idaho'],'17':['IL','Illinois','illinois'],'18':['IN','Indiana','indiana'],'19':['IA','Iowa','iowa'],'20':['KS','Kansas','kansas'],'21':['KY','Kentucky','kentucky'],'22':['LA','Louisiana','louisiana'],'23':['ME','Maine','maine'],'24':['MD','Maryland','maryland'],'25':['MA','Massachusetts','massachusetts'],'26':['MI','Michigan','michigan'],'27':['MN','Minnesota','minnesota'],'28':['MS','Mississippi','mississippi'],'29':['MO','Missouri','missouri'],'30':['MT','Montana','montana'],'31':['NE','Nebraska','nebraska'],'32':['NV','Nevada','nevada'],'33':['NH','New Hampshire','new-hampshire'],'34':['NJ','New Jersey','new-jersey'],'35':['NM','New Mexico','new-mexico'],'36':['NY','New York','new-york'],'37':['NC','North Carolina','north-carolina'],'38':['ND','North Dakota','north-dakota'],'39':['OH','Ohio','ohio'],'40':['OK','Oklahoma','oklahoma'],'41':['OR','Oregon','oregon'],'42':['PA','Pennsylvania','pennsylvania'],'44':['RI','Rhode Island','rhode-island'],'45':['SC','South Carolina','south-carolina'],'46':['SD','South Dakota','south-dakota'],'47':['TN','Tennessee','tennessee'],'48':['TX','Texas','texas'],'49':['UT','Utah','utah'],'50':['VT','Vermont','vermont'],'51':['VA','Virginia','virginia'],'53':['WA','Washington','washington'],'54':['WV','West Virginia','west-virginia'],'55':['WI','Wisconsin','wisconsin'],'56':['WY','Wyoming','wyoming']
 };
 
-let aggregate = { national:{checkins:0,voted:0,not_yet:0}, states:[] };
+let aggregate = { national:{checkins:0,voted:0,not_yet:0}, states:[], districts:[] };
 let layer = 'all';
 let selectedCode = null;
 let stateFeatures = [];
 
 function fmt(value){ return Number(value || 0).toLocaleString(); }
 function stateRow(code){ return aggregate.states.find(row => row.state_code === code) || {state_code:code,checkins:0,voted:0,not_yet:0}; }
+function districtRows(code){
+  return (aggregate.districts || [])
+    .filter(row => row.state_code === code)
+    .sort((a,b) => {
+      if(a.congressional_district === 'AL') return -1;
+      if(b.congressional_district === 'AL') return 1;
+      return Number(a.congressional_district) - Number(b.congressional_district);
+    });
+}
 function pct(row){ return Number(row.checkins) ? `${((Number(row.voted)/Number(row.checkins))*100).toFixed(1)}%` : '—'; }
 function layerCount(row){
   if(layer === 'voted') return Number(row.voted || 0);
@@ -32,6 +41,95 @@ function syncUrl(){
     const next = selectedCode ? `/voting-map?state=${encodeURIComponent(selectedCode)}` : '/voting-map';
     window.history.replaceState({}, '', next);
   }catch(_){}
+}
+
+function ensureDistrictPanel(){
+  let panel = document.querySelector('#districtBreakdown');
+  if(panel) return panel;
+  panel = document.createElement('section');
+  panel.id = 'districtBreakdown';
+  panel.style.marginTop = '18px';
+  panel.style.borderTop = '1px solid #345044';
+  panel.style.paddingTop = '16px';
+  const official = document.querySelector('#statePanel .official-box');
+  official?.parentNode?.insertBefore(panel, official);
+  return panel;
+}
+
+function updateDistrictPanel(code){
+  const panel = ensureDistrictPanel();
+  if(!panel) return;
+  if(!code){
+    panel.hidden = true;
+    panel.innerHTML = '';
+    return;
+  }
+
+  panel.hidden = false;
+  const rows = districtRows(code);
+  const heading = document.createElement('div');
+  heading.className = 'smallcaps';
+  heading.style.color = '#50ef9b';
+  heading.textContent = 'CONGRESSIONAL DISTRICTS';
+
+  const note = document.createElement('p');
+  note.style.fontSize = '12px';
+  note.style.lineHeight = '1.45';
+  note.style.color = '#aebdb5';
+  note.style.margin = '7px 0 12px';
+  note.textContent = 'Only districts with at least 5 anonymous check-ins are shown. These are self-reports, not official turnout.';
+
+  panel.replaceChildren(heading, note);
+
+  if(!rows.length){
+    const empty = document.createElement('div');
+    empty.style.border = '1px solid #345044';
+    empty.style.padding = '12px';
+    empty.style.fontSize = '12px';
+    empty.style.color = '#c8d2cc';
+    empty.textContent = 'No district has reached the public-display threshold yet.';
+    panel.append(empty);
+    return;
+  }
+
+  const list = document.createElement('div');
+  list.style.display = 'grid';
+  list.style.gap = '8px';
+  rows.forEach(row => {
+    const item = document.createElement('div');
+    item.style.border = '1px solid #345044';
+    item.style.background = '#0a1611';
+    item.style.padding = '11px 12px';
+
+    const top = document.createElement('div');
+    top.style.display = 'flex';
+    top.style.justifyContent = 'space-between';
+    top.style.gap = '12px';
+    top.style.alignItems = 'baseline';
+
+    const label = document.createElement('strong');
+    label.style.fontFamily = "'Space Grotesk',sans-serif";
+    label.style.fontSize = '14px';
+    label.textContent = row.congressional_district === 'AL' ? 'AT-LARGE DISTRICT' : `DISTRICT ${row.congressional_district}`;
+
+    const total = document.createElement('strong');
+    total.style.color = '#50ef9b';
+    total.textContent = `${fmt(row.checkins)} check-ins`;
+    top.append(label, total);
+
+    const detail = document.createElement('div');
+    detail.style.display = 'grid';
+    detail.style.gridTemplateColumns = 'repeat(3,1fr)';
+    detail.style.gap = '8px';
+    detail.style.marginTop = '8px';
+    detail.style.fontSize = '10px';
+    detail.style.color = '#c8d2cc';
+    detail.innerHTML = `<span><b style="color:#fff">${fmt(row.voted)}</b><br>VOTED</span><span><b style="color:#fff">${fmt(row.not_yet)}</b><br>NOT YET</span><span><b style="color:#fff">${pct(row)}</b><br>VOTED SHARE</span>`;
+
+    item.append(top, detail);
+    list.append(item);
+  });
+  panel.append(list);
 }
 
 function updateNational(){
@@ -65,6 +163,7 @@ function updatePanel(code){
   document.querySelector('#panelVoted').textContent = fmt(row.voted);
   document.querySelector('#panelNotYet').textContent = fmt(row.not_yet);
   document.querySelector('#panelPct').textContent = pct(row);
+  updateDistrictPanel(code);
 }
 
 function selectState(code, { scroll = false, updateUrl = true } = {}){
