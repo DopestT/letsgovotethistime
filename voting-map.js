@@ -13,6 +13,11 @@ let stateFeatures = [];
 function fmt(value){ return Number(value || 0).toLocaleString(); }
 function stateRow(code){ return aggregate.states.find(row => row.state_code === code) || {state_code:code,checkins:0,voted:0,not_yet:0}; }
 function pct(row){ return Number(row.checkins) ? `${((Number(row.voted)/Number(row.checkins))*100).toFixed(1)}%` : '—'; }
+function layerCount(row){
+  if(layer === 'voted') return Number(row.voted || 0);
+  if(layer === 'not_yet') return Number(row.not_yet || 0);
+  return Number(row.checkins || 0);
+}
 
 function updateNational(){
   document.querySelector('#mapTotal').textContent = fmt(aggregate.national.checkins);
@@ -39,19 +44,39 @@ function updatePanel(code){
   document.querySelector('#panelPct').textContent = pct(row);
 }
 
+function syncMobileStateSelect(){
+  const select = document.querySelector('#mobileStateSelect');
+  if(!select) return;
+  if(!select.options.length){
+    const all = document.createElement('option');
+    all.value = '';
+    all.textContent = 'United States';
+    select.append(all);
+    Object.values(stateMeta).sort((a,b) => a[1].localeCompare(b[1])).forEach(meta => {
+      const option = document.createElement('option');
+      option.value = meta[0];
+      option.textContent = `${meta[1]} — ${fmt(stateRow(meta[0]).checkins)}`;
+      select.append(option);
+    });
+  }else{
+    Array.from(select.options).forEach(option => {
+      if(!option.value) return;
+      const meta = Object.values(stateMeta).find(item => item[0] === option.value);
+      if(meta) option.textContent = `${meta[1]} — ${fmt(stateRow(meta[0]).checkins)}`;
+    });
+  }
+  select.value = selectedCode || '';
+}
+
 function renderMap(){
   if(!stateFeatures.length) return;
   const svg = d3.select('#usMap');
   svg.selectAll('*').remove();
 
   const path = d3.geoPath();
-  const maxCount = d3.max(aggregate.states, d => {
-    if(layer === 'voted') return Number(d.voted);
-    if(layer === 'not_yet') return Number(d.not_yet);
-    return Number(d.checkins);
-  }) || 1;
-  const opacity = d3.scaleSqrt().domain([0,maxCount]).range([0.18,0.86]);
-  const radius = d3.scaleSqrt().domain([0,maxCount]).range([0,18]);
+  const maxCount = d3.max(aggregate.states, layerCount) || 1;
+  const opacity = d3.scaleSqrt().domain([0,maxCount]).range([0.2,0.9]);
+  const radius = d3.scaleSqrt().domain([0,maxCount]).range([0,30]);
 
   svg.append('g').selectAll('path')
     .data(stateFeatures)
@@ -64,15 +89,14 @@ function renderMap(){
     .attr('fill-opacity', d => {
       const meta = stateMeta[String(d.id).padStart(2,'0')];
       if(!meta) return .18;
-      const row = stateRow(meta[0]);
-      const count = layer === 'voted' ? Number(row.voted) : layer === 'not_yet' ? Number(row.not_yet) : Number(row.checkins);
-      return opacity(count);
+      return opacity(layerCount(stateRow(meta[0])));
     })
     .on('click', (_, d) => {
       const meta = stateMeta[String(d.id).padStart(2,'0')];
       if(!meta) return;
       selectedCode = meta[0];
       updatePanel(selectedCode);
+      syncMobileStateSelect();
       renderMap();
     })
     .append('title')
@@ -84,6 +108,8 @@ function renderMap(){
     });
 
   const bubbleGroup = svg.append('g');
+  const labelGroup = svg.append('g');
+
   stateFeatures.forEach(feature => {
     const meta = stateMeta[String(feature.id).padStart(2,'0')];
     if(!meta) return;
@@ -92,12 +118,25 @@ function renderMap(){
     if(!Number.isFinite(x) || !Number.isFinite(y)) return;
 
     if(layer === 'all' || layer === 'voted'){
-      const r = radius(Number(row.voted));
-      if(r > 0) bubbleGroup.append('circle').attr('class','state-bubble').attr('cx',x-(layer==='all'?r*.42:0)).attr('cy',y).attr('r',r);
+      const scaled = radius(Number(row.voted));
+      const r = Number(row.voted) > 0 ? Math.max(4.5, scaled) : 0;
+      if(r > 0) bubbleGroup.append('circle').attr('class','state-bubble').attr('cx',x-(layer==='all'?Math.min(r*.38,8):0)).attr('cy',y).attr('r',r);
     }
     if(layer === 'all' || layer === 'not_yet'){
-      const r = radius(Number(row.not_yet));
-      if(r > 0) bubbleGroup.append('circle').attr('class','state-bubble notyet').attr('cx',x+(layer==='all'?r*.42:0)).attr('cy',y).attr('r',r);
+      const scaled = radius(Number(row.not_yet));
+      const r = Number(row.not_yet) > 0 ? Math.max(4.5, scaled) : 0;
+      if(r > 0) bubbleGroup.append('circle').attr('class','state-bubble notyet').attr('cx',x+(layer==='all'?Math.min(r*.38,8):0)).attr('cy',y).attr('r',r);
+    }
+
+    const count = layerCount(row);
+    if(count > 0){
+      const text = labelGroup.append('text')
+        .attr('class','state-total-label')
+        .attr('x',x)
+        .attr('y',y + 3)
+        .attr('text-anchor','middle');
+      text.append('tspan').attr('class','state-total-code').text(meta[0]);
+      text.append('tspan').attr('class','state-total-count').attr('x',x).attr('dy',11).text(fmt(count));
     }
   });
 
@@ -118,6 +157,7 @@ async function loadMap(){
     aggregate = data;
     updateNational();
     updatePanel(null);
+    syncMobileStateSelect();
     renderMap();
   }catch(error){
     document.querySelector('#mapStage').innerHTML = '<div class="map-error"><strong>Map data could not load.</strong><br>The voting-location links still work. Please refresh to try the live check-in layer again.</div>';
@@ -130,6 +170,13 @@ document.querySelectorAll('[data-layer]').forEach(button => {
     document.querySelectorAll('[data-layer]').forEach(b => b.classList.toggle('active', b === button));
     renderMap();
   });
+});
+
+document.querySelector('#mobileStateSelect')?.addEventListener('change', event => {
+  selectedCode = event.target.value || null;
+  updatePanel(selectedCode);
+  renderMap();
+  if(selectedCode) document.querySelector('#statePanel')?.scrollIntoView({ behavior:'smooth', block:'start' });
 });
 
 loadMap();
