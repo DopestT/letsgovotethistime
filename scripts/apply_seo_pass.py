@@ -73,19 +73,17 @@ PAGES = {
 
 
 def set_meta(html: str, name: str, content: str) -> str:
-    pat = re.compile(rf'<meta\s+name=["\']{re.escape(name)}["\']\s+content=["\'][^"\']*["\']\s*/?>', re.I)
-    tag = f'<meta name="{name}" content="{content}" />'
-    if pat.search(html):
-        return pat.sub(tag, html, count=1)
-    return html.replace('</head>', f'  {tag}\n</head>', 1)
+    pattern = re.compile(rf'<meta\s+name="{re.escape(name)}"[^>]*>', re.I)
+    html = pattern.sub('', html)
+    tag = f'  <meta name="{name}" content="{content}" />\n'
+    return html.replace('</head>', tag + '</head>', 1)
 
 
 def set_property(html: str, prop: str, content: str) -> str:
-    pat = re.compile(rf'<meta\s+property=["\']{re.escape(prop)}["\']\s+content=["\'][^"\']*["\']\s*/?>', re.I)
-    tag = f'<meta property="{prop}" content="{content}" />'
-    if pat.search(html):
-        return pat.sub(tag, html, count=1)
-    return html.replace('</head>', f'  {tag}\n</head>', 1)
+    pattern = re.compile(rf'<meta\s+property="{re.escape(prop)}"[^>]*>', re.I)
+    html = pattern.sub('', html)
+    tag = f'  <meta property="{prop}" content="{content}" />\n'
+    return html.replace('</head>', tag + '</head>', 1)
 
 
 def set_title(html: str, title: str) -> str:
@@ -93,8 +91,7 @@ def set_title(html: str, title: str) -> str:
 
 
 def ensure_alternate(html: str, url: str) -> str:
-    if 'hreflang="en-US"' in html:
-        return html
+    html = re.sub(r'\s*<link\s+rel="alternate"\s+hreflang="(?:en-US|x-default)"[^>]*>', '', html, flags=re.I)
     canonical = re.compile(r'(<link\s+rel="canonical"\s+href="[^"]+"\s*/?>)', re.I)
     addition = f'\n  <link rel="alternate" hreflang="en-US" href="{url}" />\n  <link rel="alternate" hreflang="x-default" href="{url}" />'
     return canonical.sub(r'\1' + addition, html, count=1)
@@ -129,17 +126,17 @@ def schema_for(info):
     return {"@context": "https://schema.org", "@graph": graph}
 
 
-def ensure_schema(html: str, info) -> str:
-    marker = 'id="seo-page-schema"'
-    if marker in html:
-        return html
+def set_schema(html: str, info) -> str:
+    html = re.sub(r'\s*<script\s+type="application/ld\+json"\s+id="seo-page-schema">.*?</script>', '', html, flags=re.I | re.S)
     payload = json.dumps(schema_for(info), ensure_ascii=False, separators=(",", ":"))
     script = f'  <script type="application/ld+json" id="seo-page-schema">{payload}</script>\n'
     return html.replace('</head>', script + '</head>', 1)
 
 
-def ensure_special_schema(filename: str, html: str) -> str:
-    if filename == "voting-map.html" and 'id="seo-dataset-schema"' not in html:
+def set_special_schema(filename: str, html: str) -> str:
+    html = re.sub(r'\s*<script\s+type="application/ld\+json"\s+id="seo-dataset-schema">.*?</script>', '', html, flags=re.I | re.S)
+    html = re.sub(r'\s*<script\s+type="application/ld\+json"\s+id="seo-ride-list-schema">.*?</script>', '', html, flags=re.I | re.S)
+    if filename == "voting-map.html":
         payload = {
             "@context": "https://schema.org",
             "@type": "Dataset",
@@ -159,7 +156,7 @@ def ensure_special_schema(filename: str, html: str) -> str:
         }
         script = '  <script type="application/ld+json" id="seo-dataset-schema">' + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + '</script>\n'
         html = html.replace('</head>', script + '</head>', 1)
-    if filename == "ride-board.html" and 'id="seo-ride-list-schema"' not in html:
+    if filename == "ride-board.html":
         names = ["Uber", "Lyft", "Public Transit", "Paratransit and Accessible Rides", "211", "Local Nonprofit and Community Rides"]
         payload = {
             "@context": "https://schema.org",
@@ -190,8 +187,8 @@ def optimize_page(filename: str, info):
     html = set_meta(html, "twitter:title", info["title"])
     html = set_meta(html, "twitter:description", info["description"])
     html = ensure_alternate(html, info["url"])
-    html = ensure_schema(html, info)
-    html = ensure_special_schema(filename, html)
+    html = set_schema(html, info)
+    html = set_special_schema(filename, html)
     path.write_text(html, encoding="utf-8")
 
 
@@ -199,14 +196,12 @@ for filename, info in PAGES.items():
     if Path(filename).exists():
         optimize_page(filename, info)
 
-# Keep the XML sitemap complete and signal the current modification date.
 sitemap = Path("sitemap.xml")
 if sitemap.exists():
     text = sitemap.read_text(encoding="utf-8")
     text = re.sub(r'<lastmod>[^<]+</lastmod>', f'<lastmod>{TODAY}</lastmod>', text)
     sitemap.write_text(text, encoding="utf-8")
 
-# Machine-readable site context for AI/search discovery. This contains only public, nonpartisan site information.
 llms = """# Let's Go Vote This Time\n\n> Nonpartisan 2026 voter-access utility for official voting information, voter registration resources, self-service transportation planning, voter-help resources, and an anonymous self-reported voting check-in map.\n\n## Core resources\n- Home / voting plan: https://letsgovotethistime.com/\n- 2026 interactive voting map: https://letsgovotethistime.com/voting-map\n- Anonymous Voted / Not Yet check-in: https://letsgovotethistime.com/check-in\n- Register to vote: https://letsgovotethistime.com/register\n- Rides to the polls 2026: https://letsgovotethistime.com/rides-to-polls\n- 2026 Ride Board: https://letsgovotethistime.com/ride-board\n- Voter help / Election Protection resources: https://letsgovotethistime.com/voter-help\n- National Voter Registration Day 2026: https://letsgovotethistime.com/national-voter-registration-day\n- Partner kit: https://letsgovotethistime.com/partner-kit\n\n## Important data boundaries\n- Official election information is linked from official election authorities and is kept separate from anonymous check-ins.\n- Voting check-ins are voluntary self-reports, not official turnout statistics or proof that a ballot was cast.\n- The site does not ask how a person voted, which candidate they support, or their party affiliation.\n- The site does not book, dispatch, pay for, reimburse, or guarantee transportation. Voters make their own arrangements directly with providers.\n\n## Canonical domain\nhttps://letsgovotethistime.com/\n"""
 Path("llms.txt").write_text(llms, encoding="utf-8")
 
