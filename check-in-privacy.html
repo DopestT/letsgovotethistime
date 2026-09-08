@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b0d12" />
+  <meta name="description" content="Privacy and duplicate-control policy for the Let's Go Vote This Time anonymous voting check-in." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://letsgovotethistime.com/check-in-privacy" />
+  <title>Anonymous Check-In Privacy — Let's Go Vote This Time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <style>.policy{max-width:850px;padding:74px 0}.policy h1{font-size:clamp(46px,7vw,80px)}.policy h2{margin-top:42px}.policy p,.policy li{font-size:17px;line-height:1.65}.policy li{margin-bottom:10px}.notice{border:2px solid #0b0d12;background:#50ef9b;padding:20px;margin:28px 0}.back{display:inline-block;margin-top:28px}</style>
+</head>
+<body>
+  <div class="topline"><span class="pulse"></span>PRIVACY FIRST · ANONYMOUS CHECK-IN</div>
+  <header class="nav shell"><a class="brand" href="/"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></a><nav><a href="/check-in">Check in</a><a href="/">Voting plan</a></nav></header>
+  <main class="shell policy">
+    <div class="eyebrow">WHAT WE STORE — AND WHAT WE DON'T</div>
+    <h1>ANONYMOUS<br>CHECK-IN PRIVACY.</h1>
+    <div class="notice"><strong>This map is not official turnout.</strong> It is a visualization of voluntary, anonymous, self-reported check-ins.</div>
+
+    <h2>What one check-in stores</h2>
+    <ul>
+      <li>A one-way hash of a random browser/device token so the same browser updates one check-in instead of creating another.</li>
+      <li>A one-way hash of the network IP used only for duplicate/bot-rate controls. The raw IP address is not stored in the check-in table.</li>
+      <li>Whether the anonymous check-in says <strong>Not Yet</strong> or <strong>Voted</strong>.</li>
+      <li>The selected state and, if voluntarily entered, only the first three digits of the ZIP code. The full ZIP code is discarded by the server.</li>
+      <li>Basic partner/UTM attribution when the visitor arrived through a distribution link.</li>
+      <li>Timestamps needed to operate and protect the system.</li>
+    </ul>
+
+    <h2>What we do not ask for or store</h2>
+    <ul>
+      <li>Name, account, phone number, or email address for the check-in.</li>
+      <li>Exact GPS coordinates, street address, polling-place address, or precise device location.</li>
+      <li>Party, candidate, ideology, intended vote, ballot selections, or how someone voted.</li>
+      <li>Voter-file matching or cross-site advertising identifiers.</li>
+    </ul>
+
+    <h2>Duplicate and abuse controls</h2>
+    <p>One random browser/device token represents one check-in. A <strong>Not Yet</strong> status can later become <strong>Voted</strong>; once marked <strong>Voted</strong>, the status is final for that anonymous browser identity. To reduce scripted duplication, new-device creation from the same network is rate-limited. Shared households and networks are therefore not treated as a single voter, but abnormal bursts are slowed.</p>
+
+    <h2>Map privacy</h2>
+    <p>The public map will use aggregate or deliberately coarse geography. It will not place a dot at an individual's real home, device, or polling-place coordinates. Small geographic buckets can be withheld until enough check-ins exist to avoid displaying a highly specific one-person area.</p>
+
+    <h2>What the numbers mean</h2>
+    <p>“Voted” percentages are percentages of people who voluntarily checked in through this site. They are not official turnout rates, scientific polling, voter-registration records, or proof that an individual ballot was cast.</p>
+
+    <a class="button primary back" href="/check-in">RETURN TO CHECK-IN <span>→</span></a>
+  </main>
+  <footer class="footer shell"><div><div class="brand footer-brand"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></div></div><div class="footer-links"><a href="https://www.eac.gov/vote" target="_blank" rel="noopener">Official election information ↗</a></div></footer>
+</body>
+</html>
