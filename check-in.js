@@ -7,6 +7,10 @@ const states = [
   ['Alabama','AL'],['Alaska','AK'],['Arizona','AZ'],['Arkansas','AR'],['California','CA'],['Colorado','CO'],['Connecticut','CT'],['Delaware','DE'],['District of Columbia','DC'],['Florida','FL'],['Georgia','GA'],['Hawaii','HI'],['Idaho','ID'],['Illinois','IL'],['Indiana','IN'],['Iowa','IA'],['Kansas','KS'],['Kentucky','KY'],['Louisiana','LA'],['Maine','ME'],['Maryland','MD'],['Massachusetts','MA'],['Michigan','MI'],['Minnesota','MN'],['Mississippi','MS'],['Missouri','MO'],['Montana','MT'],['Nebraska','NE'],['Nevada','NV'],['New Hampshire','NH'],['New Jersey','NJ'],['New Mexico','NM'],['New York','NY'],['North Carolina','NC'],['North Dakota','ND'],['Ohio','OH'],['Oklahoma','OK'],['Oregon','OR'],['Pennsylvania','PA'],['Rhode Island','RI'],['South Carolina','SC'],['South Dakota','SD'],['Tennessee','TN'],['Texas','TX'],['Utah','UT'],['Vermont','VT'],['Virginia','VA'],['Washington','WA'],['West Virginia','WV'],['Wisconsin','WI'],['Wyoming','WY']
 ];
 
+const districtCounts = {
+  AL:7,AK:1,AZ:9,AR:4,CA:52,CO:8,CT:5,DE:1,DC:1,FL:28,GA:14,HI:2,ID:2,IL:17,IN:9,IA:4,KS:4,KY:6,LA:6,ME:2,MD:8,MA:9,MI:13,MN:8,MS:4,MO:8,MT:2,NE:3,NV:4,NH:2,NJ:12,NM:3,NY:26,NC:14,ND:1,OH:15,OK:5,OR:6,PA:17,RI:2,SC:7,SD:1,TN:9,TX:38,UT:4,VT:1,VA:11,WA:10,WV:2,WI:8,WY:1
+};
+
 function deviceToken(){
   let token = localStorage.getItem(CHECKIN_TOKEN_KEY);
   if(!token){
@@ -17,12 +21,52 @@ function deviceToken(){
 }
 
 const stateSelect = document.querySelector('#checkinState');
+const districtSelect = document.querySelector('#checkinDistrict');
 states.forEach(([name,code]) => {
   const option = document.createElement('option');
   option.value = code;
   option.textContent = name;
   stateSelect.append(option);
 });
+
+function populateDistricts(state, selected = ''){
+  districtSelect.innerHTML = '';
+  if(!state || !districtCounts[state]){
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = 'Choose state first';
+    districtSelect.append(option);
+    districtSelect.disabled = true;
+    return;
+  }
+
+  districtSelect.disabled = false;
+  const skip = document.createElement('option');
+  skip.value = '';
+  skip.textContent = 'Not sure / skip';
+  districtSelect.append(skip);
+
+  const count = districtCounts[state];
+  if(count === 1){
+    const option = document.createElement('option');
+    option.value = 'AL';
+    option.textContent = 'At-large';
+    districtSelect.append(option);
+  }else{
+    for(let i = 1; i <= count; i += 1){
+      const option = document.createElement('option');
+      option.value = String(i);
+      option.textContent = `District ${i}`;
+      districtSelect.append(option);
+    }
+  }
+
+  if(selected && Array.from(districtSelect.options).some(option => option.value === selected)){
+    districtSelect.value = selected;
+  }
+}
+
+stateSelect.addEventListener('change', () => populateDistricts(stateSelect.value));
 
 const statusInput = document.querySelector('#checkinStatus');
 const message = document.querySelector('#checkinMessage');
@@ -76,10 +120,13 @@ async function restoreStatus(){
     if(data.ok && data.checkin){
       setUiFromStatus(data.checkin.status);
       stateSelect.value = data.checkin.state_code || '';
+      populateDistricts(stateSelect.value, data.checkin.congressional_district || '');
     }else{
+      populateDistricts(stateSelect.value);
       setUiFromStatus(localStorage.getItem(CHECKIN_STATUS_KEY));
     }
   }catch(_){
+    populateDistricts(stateSelect.value);
     setUiFromStatus(localStorage.getItem(CHECKIN_STATUS_KEY));
   }
 }
@@ -104,6 +151,7 @@ document.querySelector('#checkinForm').addEventListener('submit', async (event) 
 
   const status = statusInput.value;
   const state = stateSelect.value;
+  const district = districtSelect.value;
   const zip = document.querySelector('#checkinZip').value.trim();
   const website = document.querySelector('#checkinWebsite').value;
 
@@ -134,6 +182,7 @@ document.querySelector('#checkinForm').addEventListener('submit', async (event) 
         device_token: deviceToken(),
         status,
         state_code: state,
+        congressional_district: district || null,
         zip_code: zip || null,
         website,
         interaction_ms: Date.now() - interactionStartedAt,
@@ -144,6 +193,7 @@ document.querySelector('#checkinForm').addEventListener('submit', async (event) 
     if(!response.ok || !data.ok){
       if(data.error === 'rate_limited') throw new Error('rate_limited');
       if(data.error === 'too_fast') throw new Error('too_fast');
+      if(data.error === 'invalid_district') throw new Error('invalid_district');
       throw new Error('checkin_failed');
     }
 
@@ -163,7 +213,9 @@ document.querySelector('#checkinForm').addEventListener('submit', async (event) 
       ? 'This network has submitted too many new check-ins recently. Try again later.'
       : error.message === 'too_fast'
         ? 'Please wait a moment and try again.'
-        : 'We could not add the check-in right now. Please try again.';
+        : error.message === 'invalid_district'
+          ? 'That congressional district does not match the selected state.'
+          : 'We could not add the check-in right now. Please try again.';
   }
 });
 
@@ -180,5 +232,6 @@ document.querySelector('#shareCheckin').addEventListener('click', async () => {
   }catch(_){ }
 });
 
+populateDistricts('');
 restoreStatus();
 refreshTotals();
