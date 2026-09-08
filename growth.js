@@ -39,11 +39,24 @@
 
   window.lgvttTrack = track;
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => track('page_view'), { once: true });
-  } else {
+  function start() {
     track('page_view');
+
+    const reminderStatus = document.querySelector('#reminderStatus');
+    if (reminderStatus) {
+      let reminderTracked = false;
+      const observer = new MutationObserver(() => {
+        if (!reminderTracked && reminderStatus.classList.contains('ok') && reminderStatus.textContent.includes('You’re on the list')) {
+          reminderTracked = true;
+          track('reminder_signup_success');
+        }
+      });
+      observer.observe(reminderStatus, { childList: true, characterData: true, subtree: true, attributes: true });
+    }
   }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
+  else start();
 
   document.addEventListener('click', (event) => {
     const target = event.target instanceof Element ? event.target.closest('a,button') : null;
