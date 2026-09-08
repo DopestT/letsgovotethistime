@@ -18,6 +18,21 @@ function layerCount(row){
   if(layer === 'not_yet') return Number(row.not_yet || 0);
   return Number(row.checkins || 0);
 }
+function metaByCode(code){ return Object.values(stateMeta).find(meta => meta[0] === code) || null; }
+function validStateCode(code){ return Boolean(metaByCode(code)); }
+function statePermalink(code){
+  const url = new URL(window.location.href);
+  url.pathname = '/voting-map';
+  url.search = code ? `?state=${encodeURIComponent(code)}` : '';
+  url.hash = '';
+  return url.toString();
+}
+function syncUrl(){
+  try{
+    const next = selectedCode ? `/voting-map?state=${encodeURIComponent(selectedCode)}` : '/voting-map';
+    window.history.replaceState({}, '', next);
+  }catch(_){}
+}
 
 function updateNational(){
   document.querySelector('#mapTotal').textContent = fmt(aggregate.national.checkins);
@@ -28,20 +43,37 @@ function updateNational(){
 function updatePanel(code){
   const panelTitle = document.querySelector('#panelTitle');
   const stateOfficial = document.querySelector('#stateOfficial');
+  const rideTool = document.querySelector('#rideTool');
+  const helpTool = document.querySelector('#helpTool');
   let row = aggregate.national;
-  if(code){
+  const entry = code ? metaByCode(code) : null;
+
+  if(code && entry){
     row = stateRow(code);
-    const entry = Object.values(stateMeta).find(meta => meta[0] === code);
-    panelTitle.textContent = entry ? entry[1].toUpperCase() : code;
-    stateOfficial.href = entry ? `https://www.eac.gov/${entry[2]}-voter-info` : 'https://www.eac.gov/vote';
+    panelTitle.textContent = entry[1].toUpperCase();
+    stateOfficial.href = `https://www.eac.gov/${entry[2]}-voter-info`;
+    rideTool.href = `/rides-to-polls?state=${encodeURIComponent(code)}`;
+    helpTool.href = `/voter-help?state=${encodeURIComponent(code)}`;
   }else{
     panelTitle.textContent = 'UNITED STATES';
     stateOfficial.href = 'https://www.eac.gov/vote';
+    rideTool.href = '/rides-to-polls';
+    helpTool.href = '/voter-help';
   }
+
   document.querySelector('#panelTotal').textContent = fmt(row.checkins);
   document.querySelector('#panelVoted').textContent = fmt(row.voted);
   document.querySelector('#panelNotYet').textContent = fmt(row.not_yet);
   document.querySelector('#panelPct').textContent = pct(row);
+}
+
+function selectState(code, { scroll = false, updateUrl = true } = {}){
+  selectedCode = validStateCode(code) ? code : null;
+  updatePanel(selectedCode);
+  syncMobileStateSelect();
+  renderMap();
+  if(updateUrl) syncUrl();
+  if(scroll && selectedCode) document.querySelector('#statePanel')?.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function syncMobileStateSelect(){
@@ -61,7 +93,7 @@ function syncMobileStateSelect(){
   }else{
     Array.from(select.options).forEach(option => {
       if(!option.value) return;
-      const meta = Object.values(stateMeta).find(item => item[0] === option.value);
+      const meta = metaByCode(option.value);
       if(meta) option.textContent = `${meta[1]} — ${fmt(stateRow(meta[0]).checkins)}`;
     });
   }
@@ -93,11 +125,7 @@ function renderMap(){
     })
     .on('click', (_, d) => {
       const meta = stateMeta[String(d.id).padStart(2,'0')];
-      if(!meta) return;
-      selectedCode = meta[0];
-      updatePanel(selectedCode);
-      syncMobileStateSelect();
-      renderMap();
+      if(meta) selectState(meta[0]);
     })
     .append('title')
     .text(d => {
@@ -144,8 +172,33 @@ function renderMap(){
   svg.append('path').datum(mesh).attr('fill','none').attr('stroke','#8aa095').attr('stroke-width','.5').attr('d',path).attr('pointer-events','none');
 }
 
+async function shareSelectedState(){
+  const entry = selectedCode ? metaByCode(selectedCode) : null;
+  const title = entry ? `${entry[1]} — 2026 Voting Map` : 'The 2026 Voting Map';
+  const text = entry
+    ? `See anonymous self-reported check-ins and official voting resources for ${entry[1]}.`
+    : 'See anonymous self-reported check-ins and official voting resources by state.';
+  const url = statePermalink(selectedCode);
+  try{
+    if(navigator.share){
+      await navigator.share({ title, text, url });
+    }else{
+      await navigator.clipboard.writeText(url);
+      const button = document.querySelector('#shareState');
+      if(button){
+        const original = button.textContent;
+        button.textContent = 'STATE LINK COPIED ✓';
+        setTimeout(() => { button.textContent = original; }, 1800);
+      }
+    }
+  }catch(_){}
+}
+
 async function loadMap(){
   try{
+    const initialState = new URLSearchParams(window.location.search).get('state')?.toUpperCase() || null;
+    if(validStateCode(initialState)) selectedCode = initialState;
+
     const [atlas, response] = await Promise.all([
       d3.json(ATLAS_URL),
       fetch(CHECKIN_ENDPOINT, { credentials:'omit' })
@@ -156,11 +209,11 @@ async function loadMap(){
     stateFeatures = topojson.feature(atlas, atlas.objects.states).features;
     aggregate = data;
     updateNational();
-    updatePanel(null);
+    updatePanel(selectedCode);
     syncMobileStateSelect();
     renderMap();
   }catch(error){
-    document.querySelector('#mapStage').innerHTML = '<div class="map-error"><strong>Map data could not load.</strong><br>The voting-location links still work. Please refresh to try the live check-in layer again.</div>';
+    document.querySelector('#mapStage').innerHTML = '<div class="map-error"><strong>Map data could not load.</strong><br>The official voting-resource links still work. Please refresh to try the live check-in layer again.</div>';
   }
 }
 
@@ -173,10 +226,9 @@ document.querySelectorAll('[data-layer]').forEach(button => {
 });
 
 document.querySelector('#mobileStateSelect')?.addEventListener('change', event => {
-  selectedCode = event.target.value || null;
-  updatePanel(selectedCode);
-  renderMap();
-  if(selectedCode) document.querySelector('#statePanel')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  selectState(event.target.value || null, { scroll:true });
 });
+
+document.querySelector('#shareState')?.addEventListener('click', shareSelectedState);
 
 loadMap();
