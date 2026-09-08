@@ -10,6 +10,8 @@ on:
       - 'voter-help.html'
       - 'national-voter-registration-day.html'
       - 'rides-to-polls.html'
+      - 'ride-board.html'
+      - 'ride-board.js'
       - 'check-in.html'
       - 'check-in.js'
       - 'check-in-privacy.html'
@@ -31,6 +33,8 @@ on:
       - 'voter-help.html'
       - 'national-voter-registration-day.html'
       - 'rides-to-polls.html'
+      - 'ride-board.html'
+      - 'ride-board.js'
       - 'check-in.html'
       - 'check-in.js'
       - 'check-in-privacy.html'
@@ -61,6 +65,7 @@ jobs:
           node --check voting-map.js
           node --check map-state-actions.js
           node --check home-map.js
+          node --check ride-board.js
 
       - name: Validate XML sitemap
         run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
@@ -75,6 +80,8 @@ jobs:
           test -s voting-map.js
           test -s map-state-actions.js
           test -s home-map.js
+          test -s ride-board.html
+          test -s ride-board.js
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/"' index.html
           grep -q 'property="og:title"' index.html
           grep -q 'application/ld+json' index.html
@@ -113,7 +120,16 @@ jobs:
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/rides-to-polls"' rides-to-polls.html
           grep -q 'YOU BOOK IT' rides-to-polls.html
           grep -q '2026 VOTER OFFER NOT YET VERIFIED' rides-to-polls.html
+          grep -q 'href="/ride-board"' rides-to-polls.html
           grep -q 'src="growth.js"' rides-to-polls.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/ride-board"' ride-board.html
+          grep -q 'THE RIDE' ride-board.html
+          grep -q 'PRIOR-CYCLE ONLY' ride-board.html
+          grep -q 'FIND LOCAL 211' ride-board.html
+          grep -q 'rideResourceForm' ride-board.html
+          grep -q 'lgvtt-ride-resource-submit' ride-board.js
+          grep -q 'ride_resource_submit_success' ride-board.js
+          grep -q 'https://letsgovotethistime.com/ride-board' sitemap.xml
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/reminder-privacy"' reminder-privacy.html
           grep -q 'FOUR OR FEWER' app.js
           grep -q 'reminderConsent' app.js
