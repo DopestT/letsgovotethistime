@@ -154,7 +154,7 @@ function renderMap(){
   viewport.selectAll('*').remove();
   const maxCount = d3.max(aggregate.states, layerCount) || 1;
   const opacity = d3.scaleSqrt().domain([0,maxCount]).range([0.42,0.92]);
-  const radius = d3.scaleSqrt().domain([0,maxCount]).range([0,26]);
+  const radius = d3.scaleSqrt().domain([0,maxCount]).range([0,30]);
 
   viewport.append('g').selectAll('path').data(stateFeatures).join('path')
     .attr('class', d => {
@@ -200,7 +200,7 @@ function renderMap(){
       if(r) bubbles.append('circle').attr('class','state-bubble notyet').attr('cx',x+(layer==='all'?Math.min(r*.35,7):0)).attr('cy',y).attr('r',r);
     }
 
-    labels.append('text').attr('x',x).attr('y',y+3).attr('text-anchor','middle').attr('fill','#dce8e1').attr('font-size',10).attr('font-weight',900).attr('paint-order','stroke').attr('stroke','#07110d').attr('stroke-width',3).attr('pointer-events','none').text(meta[0]);
+    labels.append('text').attr('class','state-total-label').attr('x',x).attr('y',y+3).attr('text-anchor','middle').attr('fill','#dce8e1').attr('font-size',10).attr('font-weight',900).attr('paint-order','stroke').attr('stroke','#07110d').attr('stroke-width',3).attr('pointer-events','none').text(meta[0]);
     const visibleCount = layerCount(row);
     if(visibleCount > 0) labels.append('text').attr('x',x).attr('y',y+15).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',9).attr('font-weight',900).attr('paint-order','stroke').attr('stroke','#07110d').attr('stroke-width',3).attr('pointer-events','none').text(fmt(visibleCount));
   });
