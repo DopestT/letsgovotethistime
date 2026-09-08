@@ -3,22 +3,29 @@
 A nonpartisan voter-access site built around three actions:
 
 1. **Find my voting location** — route voters to current official EAC/state/local election information.
-2. **Get me there** — transportation planning plus a ROUTELY Ride Access pilot.
-3. **Fund a ride** — build a neutral transportation-access pool available without regard to party, candidate, or vote choice.
+2. **Choose how I will get there** — compare rideshare, transit, driving, walking, taxi, paratransit, or another option.
+3. **Make the arrangement myself** — the voter books and pays directly through Uber, Lyft, or the chosen transportation provider.
 
 ## Current public MVP
 
 - Election Day countdown to November 3, 2026
 - 50 states + District of Columbia official voter-information routing through the U.S. Election Assistance Commission
 - Polling-place address route planning for transit, driving, and walking
-- Ride Access pilot intake via `hello@routely.app`
-- Donor/partner inquiry flow for the Ride Fund
+- Direct self-service links to Uber and Lyft
+- Guidance to check provider-controlled voter transportation offers without promising an unverified 2026 promotion
 - Local, privacy-preserving voting-plan checklist
+- Explicit-consent election reminder signup capped at four messages
 - Native share action
 
-## ROUTELY boundary
+## Transportation boundary
 
-ROUTELY is currently a delivery-intelligence product, not a rideshare marketplace. This civic site therefore does **not** repurpose deliveries as riders. The Ride Access pilot is a separate civic workflow that can later connect to ROUTELY's map, ETA, operations, and dispatch capabilities through a dedicated API surface.
+Let's Go Vote This Time is **not** a transportation operator, dispatcher, broker, ride fund, reimbursement program, or rideshare marketplace.
+
+The project does not accept ride requests, assign drivers, pay fares, reimburse fares, guarantee transportation, handle cancellations, or provide transportation customer support. The voter chooses the transportation option and makes the arrangement directly with the provider.
+
+Uber and Lyft have offered voter-transportation features or promotions in prior election cycles. Any 2026 offer must be confirmed from the provider before it is presented as current. Availability, prices, promotions, eligibility, accessibility options, service areas, and provider terms remain controlled by the transportation company.
+
+ROUTELY is a separate project and is not the public voter-ride operator for Let's Go Vote This Time.
 
 ## Trusted election data
 
