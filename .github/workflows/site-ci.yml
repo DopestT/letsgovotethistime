@@ -12,6 +12,7 @@ on:
       - 'rides-to-polls.html'
       - 'reminder-privacy.html'
       - 'app.js'
+      - 'growth.js'
       - 'robots.txt'
       - 'sitemap.xml'
       - '.github/workflows/site-ci.yml'
@@ -25,6 +26,7 @@ on:
       - 'rides-to-polls.html'
       - 'reminder-privacy.html'
       - 'app.js'
+      - 'growth.js'
       - 'robots.txt'
       - 'sitemap.xml'
       - '.github/workflows/site-ci.yml'
@@ -38,19 +40,23 @@ jobs:
         uses: actions/checkout@v4
 
       - name: JavaScript syntax
-        run: node --check app.js
+        run: |
+          node --check app.js
+          node --check growth.js
 
       - name: Validate XML sitemap
         run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
 
-      - name: Verify crawl, privacy, reminder, and ride files
+      - name: Verify crawl, privacy, reminder, ride, and growth files
         shell: bash
         run: |
           test -s robots.txt
           test -s sitemap.xml
+          test -s growth.js
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/"' index.html
           grep -q 'property="og:title"' index.html
           grep -q 'application/ld+json' index.html
+          grep -q 'src="growth.js"' index.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/partner-kit"' partner-kit.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/register"' register.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/voter-help"' voter-help.html
@@ -58,8 +64,12 @@ jobs:
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/rides-to-polls"' rides-to-polls.html
           grep -q 'YOU BOOK IT' rides-to-polls.html
           grep -q '2026 VOTER OFFER NOT YET VERIFIED' rides-to-polls.html
+          grep -q 'src="growth.js"' rides-to-polls.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/reminder-privacy"' reminder-privacy.html
           grep -q 'FOUR OR FEWER' app.js
           grep -q 'reminderConsent' app.js
           grep -q 'lgvtt-reminders' app.js
+          grep -q 'lgvtt-track' growth.js
+          grep -q 'ride_provider_click' growth.js
+          grep -q 'reminder_signup_success' growth.js
           grep -q 'Sitemap: https://letsgovotethistime.com/sitemap.xml' robots.txt
