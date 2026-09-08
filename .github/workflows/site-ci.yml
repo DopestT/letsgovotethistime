@@ -6,6 +6,9 @@ on:
     paths:
       - 'index.html'
       - 'partner-kit.html'
+      - 'register.html'
+      - 'voter-help.html'
+      - 'national-voter-registration-day.html'
       - 'app.js'
       - 'robots.txt'
       - 'sitemap.xml'
@@ -14,6 +17,9 @@ on:
     paths:
       - 'index.html'
       - 'partner-kit.html'
+      - 'register.html'
+      - 'voter-help.html'
+      - 'national-voter-registration-day.html'
       - 'app.js'
       - 'robots.txt'
       - 'sitemap.xml'
@@ -42,4 +48,7 @@ jobs:
           grep -q 'property="og:title"' index.html
           grep -q 'application/ld+json' index.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/partner-kit"' partner-kit.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/register"' register.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/voter-help"' voter-help.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/national-voter-registration-day"' national-voter-registration-day.html
           grep -q 'Sitemap: https://letsgovotethistime.com/sitemap.xml' robots.txt
