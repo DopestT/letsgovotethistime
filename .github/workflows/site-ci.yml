@@ -124,11 +124,17 @@ jobs:
           grep -q 'src="growth.js"' rides-to-polls.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/ride-board"' ride-board.html
           grep -q 'THE RIDE' ride-board.html
+          grep -q 'hero-scene' ride-board.html
+          grep -q 'grid-template-columns:repeat(6' ride-board.html
           grep -q 'PRIOR-CYCLE ONLY' ride-board.html
-          grep -q 'FIND LOCAL 211' ride-board.html
+          grep -q 'FIND HELP NEAR YOU' ride-board.html
+          grep -q 'shareRideBoard' ride-board.html
+          grep -q '@media(max-width:620px)' ride-board.html
           grep -q 'rideResourceForm' ride-board.html
           grep -q 'lgvtt-ride-resource-submit' ride-board.js
           grep -q 'ride_resource_submit_success' ride-board.js
+          grep -q 'navigator.share' ride-board.js
+          grep -q 'share_plan' ride-board.js
           grep -q 'https://letsgovotethistime.com/ride-board' sitemap.xml
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/reminder-privacy"' reminder-privacy.html
           grep -q 'FOUR OR FEWER' app.js

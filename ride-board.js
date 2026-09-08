@@ -2,6 +2,7 @@ const RIDE_RESOURCE_ENDPOINT = 'https://zxmdfmiueapjhktqchts.supabase.co/functio
 
 const rideForm = document.querySelector('#rideResourceForm');
 const rideResult = document.querySelector('#rideResourceResult');
+const shareRideBoard = document.querySelector('#shareRideBoard');
 
 rideForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -41,6 +42,27 @@ rideForm?.addEventListener('submit', async (event) => {
     rideResult.textContent = error?.message || 'The submission could not be saved right now.';
   } finally {
     submitButton.disabled = false;
+  }
+});
+
+shareRideBoard?.addEventListener('click', async () => {
+  const shareData = {
+    title: '2026 Ride Board — Let’s Go Vote This Time',
+    text: 'Find verified transportation resources for getting to the polls. You make the arrangement directly with the provider.',
+    url: 'https://letsgovotethistime.com/ride-board'
+  };
+
+  try {
+    if (navigator.share) await navigator.share(shareData);
+    else {
+      await navigator.clipboard.writeText(shareData.url);
+      const original = shareRideBoard.textContent;
+      shareRideBoard.textContent = 'LINK COPIED ✓';
+      setTimeout(() => { shareRideBoard.textContent = original; }, 1800);
+    }
+    window.lgvttTrack?.('share_plan', { content: 'ride_board' });
+  } catch (error) {
+    if (error?.name !== 'AbortError') shareRideBoard.textContent = 'COPY LINK: LETSGOVOTETHISTIME.COM/RIDE-BOARD';
   }
 });
 
