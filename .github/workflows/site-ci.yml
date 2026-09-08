@@ -93,10 +93,16 @@ jobs:
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/check-in"' check-in.html
           grep -q 'I VOTED' check-in.html
           grep -q 'NOT YET' check-in.html
+          grep -q 'checkinDistrict' check-in.html
+          grep -q 'broader public record of participation' check-in.html
           grep -q 'lgvtt-vote-checkin' check-in.js
           grep -q 'crypto.randomUUID' check-in.js
+          grep -q 'districtCounts' check-in.js
+          grep -q 'congressional_district' check-in.js
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/check-in-privacy"' check-in-privacy.html
           grep -q 'raw IP address is not stored' check-in-privacy.html
+          grep -q 'congressional district' check-in-privacy.html
+          grep -q 'broader public record of participation' check-in-privacy.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/voting-map"' voting-map.html
           grep -q 'OFFICIAL VOTING ACTIONS' voting-map.html
           grep -q 'official.votinginfotool.org' voting-map.html
