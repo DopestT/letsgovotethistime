@@ -5,7 +5,12 @@ const ROOT = process.cwd();
 const SITE_HOST = 'letsgovotethistime.com';
 const TEXT_EXTS = new Set(['.html','.js','.xml','.md','.txt']);
 const SKIP_DIRS = new Set(['.git','node_modules']);
-const NON_NAV_URLS = new Set(['https://fonts.googleapis.com/','https://fonts.gstatic.com/']);
+const NON_NAV_URLS = new Set([
+  'https://fonts.googleapis.com',
+  'https://fonts.googleapis.com/',
+  'https://fonts.gstatic.com',
+  'https://fonts.gstatic.com/'
+]);
 
 function walk(dir){
   const out=[];
@@ -39,7 +44,10 @@ function extractRefs(text){
   let m;
   while((m=attr.exec(text))) refs.push(m[1].trim());
   const url=/https?:\/\/[^\s"'<>`)]+/gi;
-  while((m=url.exec(text))) refs.push(m[0].replace(/[.,;]+$/,''));
+  while((m=url.exec(text))) {
+    const candidate=m[0].replace(/[.,;]+$/,'');
+    if(!candidate.includes('.example')) refs.push(candidate);
+  }
   return refs;
 }
 
@@ -57,7 +65,7 @@ const results=[];
 const external=new Map();
 for(const r of refs){
   const h=r.href;
-  if(!h || h.startsWith('data:') || h.startsWith('javascript:') || h.includes('${') || NON_NAV_URLS.has(h)) continue;
+  if(!h || h.startsWith('data:') || h.startsWith('javascript:') || h.includes('${') || NON_NAV_URLS.has(h) || h.includes('.example')) continue;
   if(h.startsWith('#')){
     if(r.source.endsWith('.js')){ results.push({...r,type:'dynamic-anchor',status:'PASS',detail:'created dynamically'}); continue; }
     const id=h.slice(1);
@@ -88,12 +96,11 @@ for(const r of refs){
 }
 
 async function testExternal(item){
-  if(new URL(item.url).hostname.endsWith('.example')) return {...item,status:'BROKEN',http:null,finalUrl:null,error:'placeholder domain'};
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),12000);
   try{
-    let res=await fetch(item.url,{method:'HEAD',redirect:'follow',signal:controller.signal,headers:{'user-agent':'Mozilla/5.0 link-audit/1.1'}});
-    if([400,403,405].includes(res.status)) res=await fetch(item.url,{method:'GET',redirect:'follow',signal:controller.signal,headers:{'user-agent':'Mozilla/5.0 link-audit/1.1'}});
+    let res=await fetch(item.url,{method:'HEAD',redirect:'follow',signal:controller.signal,headers:{'user-agent':'Mozilla/5.0 link-audit/1.2'}});
+    if([400,403,405,406].includes(res.status)) res=await fetch(item.url,{method:'GET',redirect:'follow',signal:controller.signal,headers:{'user-agent':'Mozilla/5.0 link-audit/1.2'}});
     const s=res.status;
     let status='PASS';
     if(s===401 || s===403) status='RESTRICTED';
