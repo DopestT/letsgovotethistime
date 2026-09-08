@@ -7,7 +7,6 @@ on:
       - 'voting-map.html'
       - 'voting-map.js'
       - 'map-state-actions.js'
-      - 'growth.js'
       - 'styles.css'
       - '.github/workflows/map-pages.yml'
   workflow_dispatch:
@@ -43,7 +42,9 @@ jobs:
           mkdir -p _site
           cp voting-map.html _site/index.html
           cp voting-map.html _site/voting-map.html
-          cp voting-map.js map-state-actions.js growth.js styles.css _site/
+          cp voting-map.js map-state-actions.js styles.css _site/
+          sed -i 's|functions/v1/lgvtt-vote-checkin|functions/v1/lgvtt-map-public|g' _site/voting-map.js
+          sed -i '/<script src="growth.js"><\/script>/d' _site/index.html _site/voting-map.html
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
