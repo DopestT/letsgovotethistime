@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <style>
-    .ride-hero{padding:84px 0 48px}.ride-hero h1{max-width:960px}.ride-copy{max-width:780px;font-size:20px;line-height:1.55}.provider-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.provider-card{border:2px solid #0b0d12;background:#fff;box-shadow:7px 7px 0 #0b0d12;padding:28px}.provider-card h3{font-size:30px;margin:8px 0 12px}.status{display:inline-block;padding:7px 10px;border:2px solid #0b0d12;font-size:12px;font-weight:900;letter-spacing:.06em}.status.pending{background:#ffd166}.status.current{background:#50ef9b}.provider-card p{line-height:1.55}.provider-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.notice{border:2px solid #0b0d12;background:#f2f4f7;padding:22px;margin-top:22px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.step{border-top:3px solid #0b0d12;padding-top:15px}.step strong{font-family:'Space Grotesk',sans-serif;font-size:28px}.fallback-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.fallback{border:2px solid #0b0d12;padding:18px;background:#fff}.updated{font-size:13px;font-weight:800;letter-spacing:.05em}.disclaimer{font-size:14px;line-height:1.55;color:#4b5260}.back{margin-top:26px;display:inline-block}@media(max-width:780px){.provider-grid,.steps,.fallback-grid{grid-template-columns:1fr}.ride-hero{padding-top:56px}}
+    .ride-hero{padding:84px 0 48px}.ride-hero h1{max-width:960px}.ride-copy{max-width:780px;font-size:20px;line-height:1.55}.provider-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.provider-card{border:2px solid #0b0d12;background:#fff;box-shadow:7px 7px 0 #0b0d12;padding:28px}.provider-card h3{font-size:30px;margin:8px 0 12px}.status{display:inline-block;padding:7px 10px;border:2px solid #0b0d12;font-size:12px;font-weight:900;letter-spacing:.06em}.status.pending{background:#ffd166}.status.current{background:#50ef9b}.provider-card p{line-height:1.55}.provider-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.notice{border:2px solid #0b0d12;background:#f2f4f7;padding:22px;margin-top:22px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.step{border-top:3px solid #0b0d12;padding-top:15px}.step strong{font-family:'Space Grotesk',sans-serif;font-size:28px}.fallback-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.fallback{border:2px solid #0b0d12;padding:18px;background:#fff}.updated{font-size:13px;font-weight:800;letter-spacing:.05em}.disclaimer{font-size:14px;line-height:1.55;color:#4b5260}.back{margin-top:26px;display:inline-block}.board-cta{margin-left:8px}@media(max-width:780px){.provider-grid,.steps,.fallback-grid{grid-template-columns:1fr}.ride-hero{padding-top:56px}.board-cta{margin-left:0;margin-top:10px}}
   </style>
   <script type="application/ld+json">
   {
@@ -37,7 +37,7 @@
   <div class="topline" role="status"><span class="pulse"></span>ELECTION DAY · NOVEMBER 3, 2026</div>
   <header class="nav shell">
     <a class="brand" href="/" aria-label="Let's Go Vote This Time home"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></a>
-    <nav aria-label="Ride guide navigation"><a href="/">Voting plan</a><a href="/register">Register</a><a href="/voter-help">Voter help</a><a href="/partner-kit">Partner kit</a></nav>
+    <nav aria-label="Ride guide navigation"><a href="/">Voting plan</a><a href="/ride-board">Ride Board</a><a href="/register">Register</a><a href="/voter-help">Voter help</a><a href="/partner-kit">Partner kit</a></nav>
   </header>
 
   <main>
@@ -46,6 +46,7 @@
       <h1>GET A RIDE.<br><em>YOU BOOK IT.</em></h1>
       <p class="ride-copy">First verify your official polling place. Then choose Uber, Lyft, transit, taxi, paratransit, walking, driving, or another provider and make the arrangement directly. We do not operate a ride service.</p>
       <a class="button primary back" href="/#location">VERIFY MY VOTING LOCATION <span>→</span></a>
+      <a class="button ghost back board-cta" href="/ride-board">OPEN THE 2026 RIDE BOARD <span>→</span></a>
     </section>
 
     <section class="section dark-band">
@@ -95,6 +96,7 @@
         <div class="fallback"><strong>TAXI / LOCAL RIDESHARE</strong><p>Local providers may be available when national apps are busy or unavailable.</p></div>
         <div class="fallback"><strong>FRIEND / FAMILY</strong><p>Coordinate the exact pickup time and verified destination before Election Day.</p></div>
       </div>
+      <a class="button primary back" href="/ride-board">SEE VERIFIED STATUS + LOCAL RESOURCES <span>→</span></a>
     </section>
 
     <section class="plan-strip">
@@ -104,7 +106,7 @@
     <section class="section shell"><p class="updated">LAST VERIFIED: SEPTEMBER 8, 2026</p><p class="disclaimer">Uber and Lyft are trademarks of their respective owners. Let's Go Vote This Time is not affiliated with or endorsed by Uber or Lyft. References are provided for factual transportation planning. Provider programs, prices, promotions, availability, and terms can change.</p></section>
   </main>
 
-  <footer class="footer shell"><div><div class="brand footer-brand"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></div><p>Nonpartisan voter access. Official election information stays with election officials.</p></div><div class="footer-links"><a href="https://www.eac.gov/vote" target="_blank" rel="noopener">EAC voter information ↗</a><a href="https://vote.gov/" target="_blank" rel="noopener">Vote.gov ↗</a><a href="/voter-help">Voter help ↗</a></div></footer>
+  <footer class="footer shell"><div><div class="brand footer-brand"><span class="brand-mark">V</span><span>LET'S GO VOTE <strong>THIS TIME</strong></span></div><p>Nonpartisan voter access. Official election information stays with election officials.</p></div><div class="footer-links"><a href="/ride-board">2026 Ride Board ↗</a><a href="https://www.eac.gov/vote" target="_blank" rel="noopener">EAC voter information ↗</a><a href="https://vote.gov/" target="_blank" rel="noopener">Vote.gov ↗</a><a href="/voter-help">Voter help ↗</a></div></footer>
   <script src="growth.js"></script>
 </body>
 </html>
