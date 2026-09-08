@@ -9,6 +9,7 @@ on:
       - 'register.html'
       - 'voter-help.html'
       - 'national-voter-registration-day.html'
+      - 'reminder-privacy.html'
       - 'app.js'
       - 'robots.txt'
       - 'sitemap.xml'
@@ -20,6 +21,7 @@ on:
       - 'register.html'
       - 'voter-help.html'
       - 'national-voter-registration-day.html'
+      - 'reminder-privacy.html'
       - 'app.js'
       - 'robots.txt'
       - 'sitemap.xml'
@@ -39,7 +41,7 @@ jobs:
       - name: Validate XML sitemap
         run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
 
-      - name: Verify crawl and canonical files
+      - name: Verify crawl, privacy, and reminder files
         shell: bash
         run: |
           test -s robots.txt
@@ -51,4 +53,8 @@ jobs:
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/register"' register.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/voter-help"' voter-help.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/national-voter-registration-day"' national-voter-registration-day.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/reminder-privacy"' reminder-privacy.html
+          grep -q 'FOUR OR FEWER' app.js
+          grep -q 'reminderConsent' app.js
+          grep -q 'lgvtt-reminders' app.js
           grep -q 'Sitemap: https://letsgovotethistime.com/sitemap.xml' robots.txt
