@@ -184,3 +184,138 @@ faaaaStyles.textContent = `
   }
 `;
 document.head.append(faaaaStyles);
+
+// Explicit-consent election reminder signup. No party, candidate, ideology,
+// intended-vote, voter-file, or polling-place address data is collected here.
+const reminderNav = document.querySelector('.nav nav');
+if(reminderNav){
+  const reminderNavLink = document.createElement('a');
+  reminderNavLink.href = '#reminders';
+  reminderNavLink.textContent = 'Remind me';
+  reminderNav.append(reminderNavLink);
+}
+
+const reminderSection = document.createElement('section');
+reminderSection.id = 'reminders';
+reminderSection.className = 'section reminder-section';
+reminderSection.innerHTML = `
+  <div class="shell reminder-grid">
+    <div>
+      <div class="section-number">04</div>
+      <div class="eyebrow">FOUR OR FEWER · THEN WE STOP</div>
+      <h2>DON'T LET<br>ELECTION DAY<br><em>SNEAK UP.</em></h2>
+      <p class="reminder-copy">Get no more than four useful election reminders before November 3: registration and official-source checks, voting-location re-checks, and transportation-plan nudges.</p>
+      <ul class="reminder-rules">
+        <li>No party or candidate questions.</li>
+        <li>No voter-file matching or political profiling.</li>
+        <li>Unsubscribe in one click from every email.</li>
+      </ul>
+    </div>
+    <div class="reminder-card">
+      <div class="card-kicker">EMAIL REMINDERS</div>
+      <h3>KEEP ME ON TRACK.</h3>
+      <form id="reminderForm" novalidate>
+        <label for="reminderEmail">Email address</label>
+        <input id="reminderEmail" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required maxlength="254" />
+        <div class="reminder-honeypot" aria-hidden="true">
+          <label for="reminderWebsite">Website</label>
+          <input id="reminderWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <label class="reminder-consent">
+          <input id="reminderConsent" name="consent" type="checkbox" required />
+          <span>I agree to receive up to four nonpartisan 2026 election reminder emails from Let's Go Vote This Time. I can unsubscribe at any time.</span>
+        </label>
+        <button class="button primary full" id="reminderSubmit" type="submit">REMIND ME <span>→</span></button>
+        <p class="reminder-status" id="reminderStatus" role="status" aria-live="polite"></p>
+      </form>
+      <p class="fine">We store only the email and basic referral attribution needed to operate the reminder list. <a href="/reminder-privacy">Reminder privacy & unsubscribe policy ↗</a></p>
+    </div>
+  </div>
+`;
+
+const planStrip = document.querySelector('.plan-strip');
+if(planStrip) planStrip.before(reminderSection);
+else document.querySelector('main')?.append(reminderSection);
+
+const reminderStyles = document.createElement('style');
+reminderStyles.textContent = `
+  .reminder-section{background:#f2f4f7;border-top:2px solid #0b0d12}
+  .reminder-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:start}
+  .reminder-section h2{margin:.25em 0;font-size:clamp(42px,6vw,78px);line-height:.94}
+  .reminder-copy{max-width:640px;font-size:19px;line-height:1.55}
+  .reminder-rules{padding-left:20px;line-height:1.7;font-weight:600}
+  .reminder-card{background:#fff;border:2px solid #0b0d12;box-shadow:8px 8px 0 #0b0d12;padding:28px}
+  .reminder-card h3{font-size:28px;margin:8px 0 22px}
+  .reminder-card form{display:grid;gap:14px}
+  .reminder-card input[type="email"]{width:100%;box-sizing:border-box;border:2px solid #0b0d12;background:#fff;padding:15px;font:inherit}
+  .reminder-consent{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;font-size:14px;line-height:1.45}
+  .reminder-consent input{margin-top:3px;width:18px;height:18px}
+  .reminder-honeypot{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important}
+  .reminder-status{min-height:24px;margin:0;font-weight:800;font-size:14px;line-height:1.4}
+  .reminder-status.ok{color:#08783d}
+  .reminder-status.error{color:#b42318}
+  .reminder-card .fine a{color:inherit;font-weight:700}
+  @media(max-width:780px){.reminder-grid{grid-template-columns:1fr;gap:28px}.reminder-section h2{font-size:48px}}
+`;
+document.head.append(reminderStyles);
+
+const REMINDER_ENDPOINT = 'https://zxmdfmiueapjhktqchts.supabase.co/functions/v1/lgvtt-reminders';
+const reminderForm = document.querySelector('#reminderForm');
+if(reminderForm){
+  reminderForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const emailInput = document.querySelector('#reminderEmail');
+    const consentInput = document.querySelector('#reminderConsent');
+    const honeypot = document.querySelector('#reminderWebsite');
+    const button = document.querySelector('#reminderSubmit');
+    const status = document.querySelector('#reminderStatus');
+
+    status.className = 'reminder-status';
+    status.textContent = '';
+
+    if(!emailInput.checkValidity()){
+      emailInput.reportValidity();
+      return;
+    }
+    if(!consentInput.checked){
+      consentInput.reportValidity();
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const payload = {
+      email: emailInput.value.trim(),
+      consent: true,
+      website: honeypot.value,
+      partner: params.get('partner'),
+      source: params.get('utm_source') || 'direct',
+      medium: params.get('utm_medium') || 'website',
+      campaign: params.get('utm_campaign') || '2026-election-reminders'
+    };
+
+    button.disabled = true;
+    button.textContent = 'ADDING REMINDER…';
+
+    try{
+      const response = await fetch(REMINDER_ENDPOINT, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if(!response.ok || !data.ok) throw new Error(data.error || 'signup_failed');
+
+      emailInput.value = '';
+      consentInput.checked = false;
+      localStorage.setItem('votePlan.reminderOptIn', 'true');
+      status.classList.add('ok');
+      status.textContent = 'You’re on the list. Four reminders maximum, then we stop.';
+    }catch(error){
+      status.classList.add('error');
+      status.textContent = 'We could not add the reminder right now. Please try again.';
+    }finally{
+      button.disabled = false;
+      button.innerHTML = 'REMIND ME <span>→</span>';
+    }
+  });
+}
