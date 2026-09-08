@@ -27,7 +27,8 @@
       <li>A one-way hash of a random browser/device token so the same browser updates one check-in instead of creating another.</li>
       <li>A one-way hash of the network IP used only for duplicate/bot-rate controls. The raw IP address is not stored in the check-in table.</li>
       <li>Whether the anonymous check-in says <strong>Not Yet</strong> or <strong>Voted</strong>.</li>
-      <li>The selected state and, if voluntarily entered, only the first three digits of the ZIP code. The full ZIP code is discarded by the server.</li>
+      <li>The selected state and, if voluntarily selected, the congressional district. The district is entered directly by the visitor; we do not ask for or derive it from a street address.</li>
+      <li>If a ZIP code is voluntarily entered, only its first three digits are retained. The full ZIP code is discarded by the server.</li>
       <li>Basic partner/UTM attribution when the visitor arrived through a distribution link.</li>
       <li>Timestamps needed to operate and protect the system.</li>
     </ul>
@@ -44,7 +45,10 @@
     <p>One random browser/device token represents one check-in. A <strong>Not Yet</strong> status can later become <strong>Voted</strong>; once marked <strong>Voted</strong>, the status is final for that anonymous browser identity. To reduce scripted duplication, new-device creation from the same network is rate-limited. Shared households and networks are therefore not treated as a single voter, but abnormal bursts are slowed.</p>
 
     <h2>Map privacy</h2>
-    <p>The public map will use aggregate or deliberately coarse geography. It will not place a dot at an individual's real home, device, or polling-place coordinates. Small geographic buckets can be withheld until enough check-ins exist to avoid displaying a highly specific one-person area.</p>
+    <p>The public map uses aggregate or deliberately coarse geography. It will not place a dot at an individual's real home, device, or polling-place coordinates. District and ZIP-prefix breakdowns can be withheld until enough check-ins exist to avoid displaying a highly specific one-person area.</p>
+
+    <h2>Why we collect it</h2>
+    <p>We collect these voluntary self-reports in an attempt to give all of us a broader public record of participation. That record is community-reported, not governmental or official, and it is not proof that any individual ballot was cast.</p>
 
     <h2>What the numbers mean</h2>
     <p>“Voted” percentages are percentages of people who voluntarily checked in through this site. They are not official turnout rates, scientific polling, voter-registration records, or proof that an individual ballot was cast.</p>
