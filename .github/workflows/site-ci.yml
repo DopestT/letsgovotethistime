@@ -10,6 +10,11 @@ on:
       - 'voter-help.html'
       - 'national-voter-registration-day.html'
       - 'rides-to-polls.html'
+      - 'check-in.html'
+      - 'check-in.js'
+      - 'check-in-privacy.html'
+      - 'voting-map.html'
+      - 'voting-map.js'
       - 'reminder-privacy.html'
       - 'app.js'
       - 'growth.js'
@@ -24,6 +29,11 @@ on:
       - 'voter-help.html'
       - 'national-voter-registration-day.html'
       - 'rides-to-polls.html'
+      - 'check-in.html'
+      - 'check-in.js'
+      - 'check-in-privacy.html'
+      - 'voting-map.html'
+      - 'voting-map.js'
       - 'reminder-privacy.html'
       - 'app.js'
       - 'growth.js'
@@ -43,20 +53,37 @@ jobs:
         run: |
           node --check app.js
           node --check growth.js
+          node --check check-in.js
+          node --check voting-map.js
 
       - name: Validate XML sitemap
         run: python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml')"
 
-      - name: Verify crawl, privacy, reminder, ride, and growth files
+      - name: Verify crawl, privacy, check-in, map, ride, and growth files
         shell: bash
         run: |
           test -s robots.txt
           test -s sitemap.xml
           test -s growth.js
+          test -s check-in.js
+          test -s voting-map.js
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/"' index.html
           grep -q 'property="og:title"' index.html
           grep -q 'application/ld+json' index.html
           grep -q 'src="growth.js"' index.html
+          grep -q 'href="/check-in"' index.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/check-in"' check-in.html
+          grep -q 'I VOTED' check-in.html
+          grep -q 'NOT YET' check-in.html
+          grep -q 'lgvtt-vote-checkin' check-in.js
+          grep -q 'crypto.randomUUID' check-in.js
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/check-in-privacy"' check-in-privacy.html
+          grep -q 'raw IP address is not stored' check-in-privacy.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/voting-map"' voting-map.html
+          grep -q 'OFFICIAL VOTING LOCATION' voting-map.html
+          grep -q 'official.votinginfotool.org' voting-map.html
+          grep -q 'us-atlas@3' voting-map.js
+          grep -q 'lgvtt-vote-checkin' voting-map.js
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/partner-kit"' partner-kit.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/register"' register.html
           grep -q 'rel="canonical" href="https://letsgovotethistime.com/voter-help"' voter-help.html
