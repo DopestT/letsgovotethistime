@@ -15,7 +15,15 @@ A nonpartisan voter-access site built around three actions:
 - Guidance to check provider-controlled voter transportation offers without promising an unverified 2026 promotion
 - Local, privacy-preserving voting-plan checklist
 - Explicit-consent election reminder signup capped at four messages
+- Anonymous `I VOTED` / `NOT YET` check-in with one browser/device identity and network-abuse controls
+- Large national voting map with safe aggregate check-ins, Voted/Not Yet filters, and official voting-information actions kept separate from self-reported check-ins
 - Native share action
+
+## Check-in privacy boundary
+
+The public check-in is a voluntary, self-reported participation signal, **not official turnout data and not proof that a ballot was cast**. Exact GPS, street addresses, names, emails, party, candidate, ideology, and ballot choice are not collected by the check-in system.
+
+A random browser/device token represents one participant. `NOT YET` may later become `VOTED`; once marked `VOTED`, that browser identity cannot create another participation point. Raw IP addresses are not stored. A one-way network hash is used only for burst/rate-limit abuse detection. Geographic information is stored only at a coarse level and small buckets can be suppressed from public aggregates.
 
 ## Transportation boundary
 
@@ -29,7 +37,7 @@ ROUTELY is a separate project and is not the public voter-ride operator for Let'
 
 ## Trusted election data
 
-This site intentionally does not maintain its own polling-place database. Voters are sent to the U.S. Election Assistance Commission and linked state/local election officials for current location, hours, identification rules, and voting options.
+This site intentionally does not maintain its own polling-place database. Voters are sent to the U.S. Election Assistance Commission and linked state/local election officials for current location, hours, identification rules, and voting options. The national map keeps official voting-location information visually and technically separate from anonymous self-reported check-ins.
 
 ## Deploy
 
