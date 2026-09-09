@@ -1,0 +1,35 @@
+name: Apply Map Enhancements
+
+on:
+  push:
+    branches: [map-enhancements-all]
+    paths:
+      - 'scripts/apply_map_enhancements.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: map-enhancements-all
+          fetch-depth: 0
+      - name: Generate map enhancements
+        run: python scripts/apply_map_enhancements.py
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add voting-map.html voting-map.js map-enhancements.css sitemap.xml assets/ voting-map/
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+            exit 0
+          fi
+          git commit -m "Build complete interactive voting map enhancements"
+          git push origin HEAD:map-enhancements-all
