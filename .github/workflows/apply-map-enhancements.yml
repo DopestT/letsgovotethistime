@@ -5,6 +5,7 @@ on:
     branches: [map-enhancements-all]
     paths:
       - 'scripts/apply_map_enhancements.py'
+      - '.github/workflows/apply-map-enhancements.yml'
   workflow_dispatch:
 
 permissions:
