@@ -8,7 +8,6 @@ const content = document.getElementById('guideContent');
 const stateTitle = document.getElementById('guideStateTitle');
 
 function byCode(code){ return guideStates.find(([c]) => c === code) || null; }
-
 function setHref(id, href){ const el = document.getElementById(id); if(el) el.href = href; }
 
 function showState(code, updateUrl = true){
@@ -22,23 +21,29 @@ function showState(code, updateUrl = true){
 
   const [stateCode, name, slug] = meta;
   const eac = `https://www.eac.gov/${slug}-voter-info`;
+  const electionProtectionSlug = stateCode === 'DC' ? 'washington-d-c' : slug;
+  const electionProtection = `https://866ourvote.org/state/${electionProtectionSlug}/`;
+
   placeholder.hidden = true;
   content.hidden = false;
   stateTitle.textContent = `${name.toUpperCase()} VOTER GUIDE`;
 
   setHref('registerGuide', `/register?state=${encodeURIComponent(stateCode)}`);
   setHref('stateVotingGuide', eac);
+  setHref('datesGuide', electionProtection);
+  setHref('ballotReturnGuide', eac);
   setHref('localOffice', eac);
   setHref('idGuide', eac);
   setHref('trackGuide', eac);
   setHref('rideGuide', `/rides-to-polls?state=${encodeURIComponent(stateCode)}`);
   setHref('helpGuide', `/voter-help?state=${encodeURIComponent(stateCode)}`);
+  setHref('reportGuide', `/report-election-problem?state=${encodeURIComponent(stateCode)}`);
   setHref('stateMapGuide', `/voting-map?state=${encodeURIComponent(stateCode)}`);
   setHref('stateResourceGuide', `/voting-map/${slug}`);
 
-  document.title = `${name} Voter Guide 2026 | Registration, Polling Place & Voting Info`;
+  document.title = `${name} Voter Guide 2026 | Dates, Polling Place & Voting Info`;
   const desc = document.querySelector('meta[name="description"]');
-  if(desc) desc.content = `2026 ${name} voter guide with official registration, polling-place, early and mail voting, ballot, local election office, transportation, and voter-help resources.`;
+  if(desc) desc.content = `2026 ${name} voter guide with current early voting dates and rules, official polling-place lookup, mail-ballot return, local election office, transportation, and voter-help resources.`;
 
   stateSelect.value = stateCode;
   if(updateUrl) history.replaceState({}, '', `/voter-guide?state=${encodeURIComponent(stateCode)}`);
@@ -47,8 +52,6 @@ function showState(code, updateUrl = true){
 }
 
 guideStates.slice().sort((a,b)=>a[1].localeCompare(b[1])).forEach(([code,name]) => stateSelect.add(new Option(name, code)));
-
 stateSelect.addEventListener('change', event => showState(event.target.value || null));
-
 const initial = new URLSearchParams(location.search).get('state')?.toUpperCase();
 if(byCode(initial)) showState(initial, false);
