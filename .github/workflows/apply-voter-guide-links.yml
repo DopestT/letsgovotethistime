@@ -1,0 +1,33 @@
+name: Apply Voter Guide Links
+
+on:
+  push:
+    branches: [voter-guide-2026]
+    paths:
+      - 'scripts/apply_voter_guide_links.py'
+      - '.github/workflows/apply-voter-guide-links.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: voter-guide-2026
+          fetch-depth: 0
+      - run: python scripts/apply_voter_guide_links.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html voting-map.html voting-map.js sitemap.xml
+          if git diff --cached --quiet; then
+            echo "No guide-link changes required"
+            exit 0
+          fi
+          git commit -m "Integrate voter guide across site"
+          git push origin HEAD:voter-guide-2026
