@@ -38,7 +38,7 @@
     },
     {
       label: 'SEE SOMETHING? SAY SOMETHING.',
-      text: 'If you see intimidation, misleading voting instructions, obstruction, or conduct that appears to interfere with voting, document what happened and report it through the proper channel.',
+      text: 'If you see intimidation, misleading voting information, obstruction, or conduct that appears to interfere with voting, document what happened and report it through the proper channel.',
       href: '/report-election-problem',
       cta: 'HOW TO REPORT →'
     },
