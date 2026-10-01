@@ -95,47 +95,29 @@ faaaaButton.setAttribute('aria-label', 'Play the FAAAAAA sound');
 faaaaButton.innerHTML = '<span class="faaaa-kicker">PRESS WHEN YOU NEED TO LET IT OUT</span><span class="faaaa-word"><span class="speaker" aria-hidden="true">🔊</span> FAAAAAH!</span><span class="faaaa-sub">THE OFFICIAL RELEASE BUTTON</span><span class="faaaa-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>';
 heroActions.append(faaaaButton);
 
-function playFaaaaFallback(){
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if(!AudioContext) return;
-  const ctx = new AudioContext();
-  const now = ctx.currentTime;
-  const master = ctx.createGain();
-  master.gain.setValueAtTime(0.0001, now);
-  master.gain.exponentialRampToValueAtTime(0.24, now + 0.04);
-  master.gain.exponentialRampToValueAtTime(0.0001, now + 1.25);
-  master.connect(ctx.destination);
-
-  [220, 330, 440].forEach((frequency, index) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = index === 0 ? 'sawtooth' : 'triangle';
-    osc.frequency.setValueAtTime(frequency, now);
-    osc.frequency.exponentialRampToValueAtTime(frequency * 0.68, now + 1.2);
-    gain.gain.value = 0.20 / (index + 1);
-    osc.connect(gain);
-    gain.connect(master);
-    osc.start(now + index * 0.012);
-    osc.stop(now + 1.28);
-  });
-}
+const faaaaAudio = new Audio('/assets/faaah.mp3');
+faaaaAudio.preload = 'auto';
+faaaaAudio.volume = 1;
 
 function playFaaaa(){
   faaaaButton.classList.remove('is-playing');
   void faaaaButton.offsetWidth;
   faaaaButton.classList.add('is-playing');
-  setTimeout(() => faaaaButton.classList.remove('is-playing'), 1050);
 
-  if('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window){
-    window.speechSynthesis.cancel();
-    const yell = new SpeechSynthesisUtterance('Faaaaaaaaaaaa!');
-    yell.rate = 0.62;
-    yell.pitch = 0.72;
-    yell.volume = 1;
-    window.speechSynthesis.speak(yell);
-  }else{
-    playFaaaaFallback();
+  try{
+    faaaaAudio.pause();
+    faaaaAudio.currentTime = 0;
+    const playback = faaaaAudio.play();
+    if(playback?.catch) playback.catch(error => {
+      console.error('FAAAAH audio playback failed', error);
+      faaaaButton.classList.remove('is-playing');
+    });
+  }catch(error){
+    console.error('FAAAAH audio playback failed', error);
+    faaaaButton.classList.remove('is-playing');
   }
+
+  setTimeout(() => faaaaButton.classList.remove('is-playing'), 1400);
 }
 
 faaaaButton.addEventListener('click', playFaaaa);
