@@ -92,7 +92,7 @@ const faaaaButton = document.createElement('button');
 faaaaButton.type = 'button';
 faaaaButton.className = 'button faaaa-button';
 faaaaButton.setAttribute('aria-label', 'Play the FAAAAAA sound');
-faaaaButton.innerHTML = '<span class="speaker" aria-hidden="true">🔊</span> FAAAAAAA!';
+faaaaButton.innerHTML = '<span class="faaaa-kicker">PRESS WHEN YOU NEED TO LET IT OUT</span><span class="faaaa-word"><span class="speaker" aria-hidden="true">🔊</span> FAAAAAH!</span><span class="faaaa-sub">THE OFFICIAL RELEASE BUTTON</span><span class="faaaa-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>';
 heroActions.append(faaaaButton);
 
 function playFaaaaFallback(){
@@ -144,43 +144,122 @@ const faaaaStyles = document.createElement('style');
 faaaaStyles.textContent = `
   .faaaa-button{
     position:relative;
+    isolation:isolate;
     overflow:hidden;
+    min-width:270px;
+    min-height:112px;
+    padding:14px 18px 16px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    grid-template-areas:
+      "kicker bars"
+      "word bars"
+      "sub bars";
+    align-items:center;
+    column-gap:14px;
+    text-align:left;
     background:#ff4b38;
-    border-color:#0b0d12;
+    border:3px solid #0b0d12;
+    border-radius:2px;
     color:#0b0d12;
-    box-shadow:4px 4px 0 #0b0d12;
-    font-size:13px;
+    box-shadow:8px 8px 0 #0b0d12;
+    transform:rotate(-1deg);
+    transition:transform .14s ease,box-shadow .14s ease,background .14s ease;
   }
+  .faaaa-button:before{
+    content:'';
+    position:absolute;
+    inset:6px;
+    border:1px solid rgba(11,13,18,.42);
+    pointer-events:none;
+    z-index:-1;
+  }
+  .faaaa-kicker{
+    grid-area:kicker;
+    font:900 9px/1.1 'DM Sans',sans-serif;
+    letter-spacing:.15em;
+    text-transform:uppercase;
+    opacity:.72;
+  }
+  .faaaa-word{
+    grid-area:word;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font:900 clamp(27px,3vw,42px)/.95 'Space Grotesk',sans-serif;
+    letter-spacing:-.045em;
+    white-space:nowrap;
+  }
+  .faaaa-sub{
+    grid-area:sub;
+    font:900 10px/1 'DM Sans',sans-serif;
+    letter-spacing:.11em;
+    text-transform:uppercase;
+    margin-top:4px;
+  }
+  .faaaa-button .speaker{
+    font-size:.72em;
+    filter:grayscale(1) contrast(1.6);
+  }
+  .faaaa-bars{
+    grid-area:bars;
+    align-self:stretch;
+    display:flex;
+    align-items:center;
+    gap:3px;
+    padding:4px 0;
+  }
+  .faaaa-bars i{
+    display:block;
+    width:4px;
+    background:#0b0d12;
+    border-radius:999px;
+    transform-origin:center;
+  }
+  .faaaa-bars i:nth-child(1),.faaaa-bars i:nth-child(6){height:24%}
+  .faaaa-bars i:nth-child(2),.faaaa-bars i:nth-child(5){height:48%}
+  .faaaa-bars i:nth-child(3){height:76%}
+  .faaaa-bars i:nth-child(4){height:100%}
   .faaaa-button:hover,.faaaa-button:focus-visible{
     background:#50ef9b;
-    transform:translate(-1px,-1px);
-    box-shadow:6px 6px 0 #0b0d12;
+    transform:translate(-3px,-3px) rotate(.4deg) scale(1.02);
+    box-shadow:12px 12px 0 #0b0d12;
     outline:none;
   }
-  .faaaa-button .speaker{font-size:17px}
-  .faaaa-button.is-playing{animation:faaaaShake .13s linear 7}
-  .faaaa-button.is-playing:after{
-    content:'FAAAAAAAAA!';
-    position:absolute;
-    inset:0;
-    display:grid;
-    place-items:center;
-    background:#ff4b38;
-    font-size:14px;
-    font-weight:900;
-    letter-spacing:.1em;
+  .faaaa-button:active{
+    transform:translate(5px,5px) rotate(0);
+    box-shadow:2px 2px 0 #0b0d12;
+  }
+  .faaaa-button.is-playing{animation:faaaaShake .105s linear 10}
+  .faaaa-button.is-playing .faaaa-bars i{
+    animation:faaaaBars .28s ease-in-out infinite alternate;
+  }
+  .faaaa-button.is-playing .faaaa-bars i:nth-child(2){animation-delay:.05s}
+  .faaaa-button.is-playing .faaaa-bars i:nth-child(3){animation-delay:.1s}
+  .faaaa-button.is-playing .faaaa-bars i:nth-child(4){animation-delay:.15s}
+  .faaaa-button.is-playing .faaaa-bars i:nth-child(5){animation-delay:.08s}
+  @keyframes faaaaBars{
+    from{transform:scaleY(.35)}
+    to{transform:scaleY(1)}
   }
   @keyframes faaaaShake{
-    0%,100%{transform:translate(0,0) rotate(0)}
-    25%{transform:translate(-2px,1px) rotate(-1deg)}
-    50%{transform:translate(2px,-1px) rotate(1deg)}
-    75%{transform:translate(-1px,-1px) rotate(.5deg)}
+    0%,100%{transform:translate(0,0) rotate(-1deg)}
+    25%{transform:translate(-3px,2px) rotate(-2deg)}
+    50%{transform:translate(3px,-2px) rotate(1deg)}
+    75%{transform:translate(-2px,-2px) rotate(.8deg)}
   }
   @media(max-width:780px){
-    .faaaa-button{width:100%}
+    .faaaa-button{
+      width:100%;
+      min-width:0;
+      min-height:104px;
+      transform:none;
+    }
+    .faaaa-word{font-size:34px}
   }
   @media(prefers-reduced-motion:reduce){
-    .faaaa-button.is-playing{animation:none}
+    .faaaa-button,.faaaa-button:hover,.faaaa-button:active{transform:none}
+    .faaaa-button.is-playing,.faaaa-button.is-playing .faaaa-bars i{animation:none}
   }
 `;
 document.head.append(faaaaStyles);
