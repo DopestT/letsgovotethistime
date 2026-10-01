@@ -6,12 +6,31 @@ const ATLAS_URL='/assets/states-10m.json';
 const stateMeta={'01':['AL','Alabama','alabama'],'02':['AK','Alaska','alaska'],'04':['AZ','Arizona','arizona'],'05':['AR','Arkansas','arkansas'],'06':['CA','California','california'],'08':['CO','Colorado','colorado'],'09':['CT','Connecticut','connecticut'],'10':['DE','Delaware','delaware'],'11':['DC','District of Columbia','district-columbia'],'12':['FL','Florida','florida'],'13':['GA','Georgia','georgia'],'15':['HI','Hawaii','hawaii'],'16':['ID','Idaho','idaho'],'17':['IL','Illinois','illinois'],'18':['IN','Indiana','indiana'],'19':['IA','Iowa','iowa'],'20':['KS','Kansas','kansas'],'21':['KY','Kentucky','kentucky'],'22':['LA','Louisiana','louisiana'],'23':['ME','Maine','maine'],'24':['MD','Maryland','maryland'],'25':['MA','Massachusetts','massachusetts'],'26':['MI','Michigan','michigan'],'27':['MN','Minnesota','minnesota'],'28':['MS','Mississippi','mississippi'],'29':['MO','Missouri','missouri'],'30':['MT','Montana','montana'],'31':['NE','Nebraska','nebraska'],'32':['NV','Nevada','nevada'],'33':['NH','New Hampshire','new-hampshire'],'34':['NJ','New Jersey','new-jersey'],'35':['NM','New Mexico','new-mexico'],'36':['NY','New York','new-york'],'37':['NC','North Carolina','north-carolina'],'38':['ND','North Dakota','north-dakota'],'39':['OH','Ohio','ohio'],'40':['OK','Oklahoma','oklahoma'],'41':['OR','Oregon','oregon'],'42':['PA','Pennsylvania','pennsylvania'],'44':['RI','Rhode Island','rhode-island'],'45':['SC','South Carolina','south-carolina'],'46':['SD','South Dakota','south-dakota'],'47':['TN','Tennessee','tennessee'],'48':['TX','Texas','texas'],'49':['UT','Utah','utah'],'50':['VT','Vermont','vermont'],'51':['VA','Virginia','virginia'],'53':['WA','Washington','washington'],'54':['WV','West Virginia','west-virginia'],'55':['WI','Wisconsin','wisconsin'],'56':['WY','Wyoming','wyoming']};
 let aggregate={national:{checkins:0,voted:0,not_yet:0},states:[],districts:[],timeline:[],state_timelines:{}};let layer='all',selectedCode=null,atlas,stateFeatures=[],projection,path,svg,viewport,zoom;
 const $=s=>document.querySelector(s),fmt=v=>Number(v||0).toLocaleString(),stateRow=c=>aggregate.states.find(r=>r.state_code===c)||{state_code:c,checkins:0,voted:0,not_yet:0},metaByCode=c=>Object.values(stateMeta).find(m=>m[0]===c)||null,validStateCode=c=>!!metaByCode(c),pct=r=>Number(r.checkins)?`${((Number(r.voted)/Number(r.checkins))*100).toFixed(1)}%`:'—',layerCount=r=>layer==='voted'?Number(r.voted||0):layer==='not_yet'?Number(r.not_yet||0):Number(r.checkins||0);
+const dom={
+  mapTotal:$('#mapTotal'),
+  mapVoted:$('#mapVoted'),
+  mapNotYet:$('#mapNotYet'),
+  mapStage:$('#mapStage'),
+  freshnessLabel:$('#freshnessLabel'),
+  freshnessTime:$('#freshnessTime'),
+  mobileStateSelect:$('#mobileStateSelect'),
+  shareState:$('#shareState'),
+  shareCard:$('#shareCard'),
+  highContrast:$('#highContrast'),
+  savePlan:$('#savePlan'),
+  clearPlan:$('#clearPlan'),
+  planLocation:$('#planLocation'),
+  planTransport:$('#planTransport'),
+  planTime:$('#planTime'),
+  planStatus:$('#planStatus'),
+  openRoute:$('#openRoute')
+};
 function statePermalink(code){const u=new URL(location.href);u.pathname='/voting-map';u.search=code?`?state=${encodeURIComponent(code)}`:'';u.hash='';return u.toString()}
 function syncUrl(){try{history.replaceState({},'',selectedCode?`/voting-map?state=${encodeURIComponent(selectedCode)}`:'/voting-map')}catch{}}
 function districtRows(code){return (aggregate.districts||[]).filter(r=>r.state_code===code).sort((a,b)=>String(a.congressional_district).localeCompare(String(b.congressional_district),undefined,{numeric:true}))}
 function updateDistrictPanel(code){const p=$('#districtBreakdown');if(!p)return;if(!code){p.innerHTML='';return}const rows=districtRows(code);p.innerHTML='<div class="smallcaps" style="color:#50ef9b;margin-top:16px">CONGRESSIONAL DISTRICTS</div><p style="font-size:11px;color:#aebdb5">Only districts with at least 5 anonymous check-ins are shown.</p>';if(!rows.length){p.insertAdjacentHTML('beforeend','<div class="intel-card"><span>No district has reached the public-display threshold yet.</span></div>');return}rows.forEach(r=>p.insertAdjacentHTML('beforeend',`<div class="panel-stat"><span>${r.congressional_district==='AL'?'At-large':`District ${r.congressional_district}`}</span><strong>${fmt(r.checkins)}</strong></div>`))}
 function updatePanel(code){const e=code?metaByCode(code):null,r=e?stateRow(code):aggregate.national;$('#panelTitle').textContent=e?e[1].toUpperCase():'UNITED STATES';$('#panelTotal').textContent=fmt(r.checkins);$('#panelVoted').textContent=fmt(r.voted);$('#panelNotYet').textContent=fmt(r.not_yet);$('#panelPct').textContent=pct(r);$('#stateOfficial').href=e?`https://www.eac.gov/${e[2]}-voter-info`:'https://www.eac.gov/vote';$('#rideTool').href=e?`/rides-to-polls?state=${code}`:'/rides-to-polls';$('#helpTool').href=e?`/voter-help?state=${code}`:'/voter-help';$('#statePageTool').href=e?`/voting-map/${e[2]}`:'/voting-map';$('#voterGuideTool').href=e?`/voter-guide?state=${code}`:'/voter-guide';$('#thresholdStatus').textContent=e?(Number(r.checkins)>=5?'State public display threshold met':'State totals visible; finer geography remains suppressed'):'National aggregate';updateDistrictPanel(code);renderTimeline(code)}
-function updateNational(){mapTotal.textContent=fmt(aggregate.national.checkins);mapVoted.textContent=fmt(aggregate.national.voted);mapNotYet.textContent=fmt(aggregate.national.not_yet)}
+function updateNational(){dom.mapTotal.textContent=fmt(aggregate.national.checkins);dom.mapVoted.textContent=fmt(aggregate.national.voted);dom.mapNotYet.textContent=fmt(aggregate.national.not_yet)}
 function syncStateSelect(){const s=$('#mobileStateSelect');if(!s)return;if(!s.options.length){s.add(new Option('United States',''));Object.values(stateMeta).sort((a,b)=>a[1].localeCompare(b[1])).forEach(m=>s.add(new Option(`${m[1]} — ${fmt(stateRow(m[0]).checkins)}`,m[0])))}s.value=selectedCode||''}
 function installControls(){const stage=$('#mapStage');if($('#mapEngineControls'))return;const c=document.createElement('div');c.id='mapEngineControls';c.style.cssText='position:absolute;right:14px;top:14px;z-index:8;display:flex;gap:7px;background:rgba(7,17,13,.92);border:1px solid #345044;padding:7px';c.innerHTML='<button type="button" data-a="in" aria-label="Zoom in">＋</button><button type="button" data-a="out" aria-label="Zoom out">−</button><button type="button" data-a="reset">RESET</button>';c.querySelectorAll('button').forEach(b=>b.style.cssText='min-width:46px;height:46px;border:1px solid #557063;background:#0d1b15;color:#fff;font-weight:900');c.onclick=e=>{const b=e.target.closest('button');if(!b)return;b.dataset.a==='in'?svg.transition().duration(150).call(zoom.scaleBy,1.4):b.dataset.a==='out'?svg.transition().duration(150).call(zoom.scaleBy,1/1.4):selectState(null,{zoomTo:true})};stage.append(c)}
 function zoomToSelection(code){if(!zoom||!svg||!path)return;if(!code){svg.transition().duration(350).call(zoom.transform,d3.zoomIdentity);return}const f=stateFeatures.find(f=>stateMeta[String(f.id).padStart(2,'0')]?.[0]===code);if(!f)return;const [[x0,y0],[x1,y1]]=path.bounds(f),dx=x1-x0,dy=y1-y0,x=(x0+x1)/2,y=(y0+y1)/2,k=Math.min(7,.78/Math.max(dx/975,dy/610)),t=d3.zoomIdentity.translate(487.5,305).scale(k).translate(-x,-y);svg.transition().duration(350).call(zoom.transform,t)}
@@ -21,7 +40,54 @@ function initializeGeography(a){atlas=a;stateFeatures=topojson.feature(atlas,atl
 function renderTimeline(code){const rows=(code?(aggregate.state_timelines||{})[code]:aggregate.timeline)||[];$('#timelineTitle').textContent=code?`${metaByCode(code)[1].toUpperCase()} CHECK-IN ACTIVITY`:'NATIONAL CHECK-IN ACTIVITY';const el=d3.select('#timelineChart');el.selectAll('*').remove();if(!rows.length){el.append('text').attr('x',20).attr('y',40).attr('fill','#b5c3bb').text('No public timeline activity yet.');return}const box=$('#timelineChart').getBoundingClientRect(),w=Math.max(320,box.width),h=Math.max(220,box.height),m={t:15,r:18,b:34,l:38},x=d3.scaleUtc().domain(d3.extent(rows,d=>new Date(d.hour))).range([m.l,w-m.r]),y=d3.scaleLinear().domain([0,d3.max(rows,d=>Math.max(d.checkins_added,d.marked_voted))||1]).nice().range([h-m.b,m.t]);el.attr('viewBox',`0 0 ${w} ${h}`);el.append('g').attr('transform',`translate(0,${h-m.b})`).call(d3.axisBottom(x).ticks(Math.min(6,rows.length))).selectAll('text').attr('fill','#c8d2cc');el.append('g').attr('transform',`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4)).selectAll('text').attr('fill','#c8d2cc');const line=k=>d3.line().x(d=>x(new Date(d.hour))).y(d=>y(d[k]));el.append('path').datum(rows).attr('fill','none').attr('stroke','#50ef9b').attr('stroke-width',3).attr('d',line('checkins_added'));el.append('path').datum(rows).attr('fill','none').attr('stroke','#fff').attr('stroke-width',2).attr('d',line('marked_voted'))}
 async function shareSelectedState(){const e=selectedCode?metaByCode(selectedCode):null,title=e?`${e[1]} — 2026 Voting Map`:'The 2026 Voting Map',text=e?`See anonymous self-reported check-ins and official voting resources for ${e[1]}.`:'See the live anonymous 2026 voting map and official resources.',url=statePermalink(selectedCode);try{if(navigator.share)await navigator.share({title,text,url});else{await navigator.clipboard.writeText(url);$('#shareState').textContent='LINK COPIED ✓';setTimeout(()=>$('#shareState').textContent='SHARE STATE LINK ↗',1600)}}catch{}}
 async function shareStateCard(){const e=selectedCode?metaByCode(selectedCode):null,r=e?stateRow(selectedCode):aggregate.national,name=e?e[1]:'United States',c=document.createElement('canvas');c.width=1080;c.height=1080;const g=c.getContext('2d');g.fillStyle='#07110d';g.fillRect(0,0,1080,1080);g.fillStyle='#50ef9b';g.font='700 48px sans-serif';g.fillText("LET'S GO VOTE THIS TIME",70,110);g.fillStyle='#fff';g.font='900 88px sans-serif';g.fillText(name.toUpperCase(),70,270);g.font='900 72px sans-serif';g.fillText('IS LIGHTING UP.',70,360);g.fillStyle='#50ef9b';g.font='900 150px sans-serif';g.fillText(fmt(r.checkins),70,590);g.fillStyle='#fff';g.font='700 42px sans-serif';g.fillText('ANONYMOUS CHECK-INS',70,650);g.font='700 34px sans-serif';g.fillText(`${fmt(r.voted)} VOTED  •  ${fmt(r.not_yet)} NOT YET`,70,730);g.fillStyle='#b5c3bb';g.font='500 29px sans-serif';g.fillText('Self-reported participation — not official turnout.',70,820);g.fillStyle='#fff';g.font='700 34px sans-serif';g.fillText('letsgovotethistime.com/voting-map',70,940);const blob=await new Promise(res=>c.toBlob(res,'image/png'));try{const file=new File([blob],`2026-voting-map-${selectedCode||'us'}.png`,{type:'image/png'});if(navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:`${name} 2026 Voting Map`,text:'Anonymous self-reported participation, not official turnout.'});else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();URL.revokeObjectURL(a.href)}}catch{}}
-const PLAN_KEY='lgvtt_private_voting_plan_v1';function loadPlan(){try{const p=JSON.parse(localStorage.getItem(PLAN_KEY)||'null');if(!p)return;planLocation.value=p.location||'';planTransport.value=p.transport||'';planTime.value=p.time||'';planStatus.textContent='Private plan loaded from this device.';syncRoute()}catch{}}function syncRoute(){const a=$('#openRoute'),loc=$('#planLocation').value.trim();a.href=loc?`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(loc)}`:'#'}function savePlan(){localStorage.setItem(PLAN_KEY,JSON.stringify({location:planLocation.value.trim(),transport:planTransport.value,time:planTime.value,saved_at:new Date().toISOString()}));planStatus.textContent='Saved privately on this device.';syncRoute()}function clearPlan(){localStorage.removeItem(PLAN_KEY);planLocation.value='';planTransport.value='';planTime.value='';planStatus.textContent='Private plan cleared.';syncRoute()}
+const PLAN_KEY='lgvtt_private_voting_plan_v1';function loadPlan(){try{const p=JSON.parse(localStorage.getItem(PLAN_KEY)||'null');if(!p)return;dom.planLocation.value=p.location||'';dom.planTransport.value=p.transport||'';dom.planTime.value=p.time||'';dom.planStatus.textContent='Private plan loaded from this device.';syncRoute()}catch{}}function syncRoute(){const loc=dom.planLocation.value.trim();dom.openRoute.href=loc?`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(loc)}`:'#'}function savePlan(){localStorage.setItem(PLAN_KEY,JSON.stringify({location:dom.planLocation.value.trim(),transport:dom.planTransport.value,time:dom.planTime.value,saved_at:new Date().toISOString()}));dom.planStatus.textContent='Saved privately on this device.';syncRoute()}function clearPlan(){localStorage.removeItem(PLAN_KEY);dom.planLocation.value='';dom.planTransport.value='';dom.planTime.value='';dom.planStatus.textContent='Private plan cleared.';syncRoute()}
 function electionDayMode(){const d=new Date();if(d.getFullYear()===2026&&d.getMonth()===10&&d.getDate()===3)document.body.classList.add('election-day')}
-async function loadMap(){try{const initial=new URLSearchParams(location.search).get('state')?.toUpperCase()||null;if(validStateCode(initial))selectedCode=initial;const [a,res]=await Promise.all([d3.json(ATLAS_URL),fetch(MAP_ENDPOINT,{credentials:'omit'})]);const data=await res.json();if(!data.ok)throw new Error('aggregate_failed');aggregate=data;updateNational();updatePanel(selectedCode);syncStateSelect();initializeGeography(a);if(selectedCode)zoomToSelection(selectedCode);const generated=data.generated_at?new Date(data.generated_at):new Date();freshnessTime.textContent=`Aggregates generated ${generated.toLocaleString()} · official links verified Sep. 9, 2026`;freshnessLabel.textContent='CURRENT DATA'}catch(e){console.error(e);mapStage.innerHTML='<div class="map-error"><strong>Interactive map could not load.</strong><br>Official voting-resource links remain available.</div>'}}
-document.querySelectorAll('[data-layer]').forEach(b=>b.onclick=()=>{layer=b.dataset.layer;document.querySelectorAll('[data-layer]').forEach(x=>x.classList.toggle('active',x===b));renderMap()});mobileStateSelect?.addEventListener('change',e=>selectState(e.target.value||null,{scroll:true}));shareState?.addEventListener('click',shareSelectedState);shareCard?.addEventListener('click',shareStateCard);highContrast?.addEventListener('click',()=>{document.body.classList.toggle('hc');highContrast.classList.toggle('active')});savePlan?.addEventListener('click',savePlan);clearPlan?.addEventListener('click',clearPlan);planLocation?.addEventListener('input',syncRoute);electionDayMode();loadPlan();loadMap();
+async function loadMap(){
+  const initial=new URLSearchParams(location.search).get('state')?.toUpperCase()||null;
+  if(validStateCode(initial))selectedCode=initial;
+
+  // Geography must render even if the live aggregate request is slow or unavailable.
+  try{
+    const a=await d3.json(ATLAS_URL);
+    initializeGeography(a);
+    if(selectedCode)zoomToSelection(selectedCode);
+  }catch(error){
+    console.error('Map geography failed to load',error);
+    dom.mapStage.innerHTML='<div class="map-error"><strong>U.S. map geometry could not load.</strong><br>The data panel remains available.</div>';
+  }
+
+  try{
+    const res=await fetch(MAP_ENDPOINT,{credentials:'omit',cache:'no-store'});
+    if(!res.ok)throw new Error(`aggregate_http_${res.status}`);
+    const data=await res.json();
+    if(!data.ok)throw new Error(data.error||'aggregate_failed');
+
+    aggregate=data;
+    updateNational();
+    updatePanel(selectedCode);
+    syncStateSelect();
+    renderMap();
+
+    const latest=data.latest_checkin_at?new Date(data.latest_checkin_at):null;
+    dom.freshnessTime.textContent=latest
+      ? `Live aggregate · latest recorded check-in ${latest.toLocaleString()}`
+      : 'Live aggregate · no recorded check-ins yet';
+    dom.freshnessLabel.textContent='LIVE SELF-REPORTS';
+  }catch(error){
+    console.error('Map aggregate failed to load',error);
+    dom.freshnessLabel.textContent='DATA UNAVAILABLE';
+    dom.freshnessTime.textContent='Map geography is available; live self-reported totals could not be loaded.';
+    [dom.mapTotal,dom.mapVoted,dom.mapNotYet].forEach(el=>{if(el)el.textContent='—'});
+  }
+}
+document.querySelectorAll('[data-layer]').forEach(b=>b.addEventListener('click',()=>{layer=b.dataset.layer;document.querySelectorAll('[data-layer]').forEach(x=>x.classList.toggle('active',x===b));renderMap()}));
+dom.mobileStateSelect?.addEventListener('change',e=>selectState(e.target.value||null,{scroll:true}));
+dom.shareState?.addEventListener('click',shareSelectedState);
+dom.shareCard?.addEventListener('click',shareStateCard);
+dom.highContrast?.addEventListener('click',()=>{document.body.classList.toggle('hc');dom.highContrast.classList.toggle('active')});
+dom.savePlan?.addEventListener('click',savePlan);
+dom.clearPlan?.addEventListener('click',clearPlan);
+dom.planLocation?.addEventListener('input',syncRoute);
+electionDayMode();
+loadPlan();
+loadMap();
