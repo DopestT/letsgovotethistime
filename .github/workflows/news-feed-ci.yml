@@ -1,0 +1,51 @@
+name: Major News Feed CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/lib/news-feed.js'
+      - 'api/news-feed.js'
+      - 'news.html'
+      - 'news.js'
+      - 'styles.css'
+      - 'index.html'
+      - 'tests/news-feed.test.mjs'
+      - 'package.json'
+      - '.github/workflows/news-feed-ci.yml'
+  pull_request:
+    paths:
+      - 'api/lib/news-feed.js'
+      - 'api/news-feed.js'
+      - 'news.html'
+      - 'news.js'
+      - 'styles.css'
+      - 'index.html'
+      - 'tests/news-feed.test.mjs'
+      - 'package.json'
+      - '.github/workflows/news-feed-ci.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Syntax check
+        run: |
+          test ! -f api/lib/news-feed.js || node --check api/lib/news-feed.js
+          test ! -f api/news-feed.js || node --check api/news-feed.js
+          test ! -f news.js || node --check news.js
+
+      - name: Unit tests
+        run: npm test
