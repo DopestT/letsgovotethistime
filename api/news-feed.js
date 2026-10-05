@@ -8,34 +8,34 @@ export default async function handler(req, res) {
 
   const requestedSection = typeof req.query?.section === 'string' ? req.query.section : null;
   const maxRecords = Math.min(Math.max(Number(req.query?.limit) || 40, 1), 100);
-  const timespan = typeof req.query?.timespan === 'string' && /^\d+(min|h|d|w|m)$/.test(req.query.timespan)
-    ? req.query.timespan
-    : '12h';
 
   try {
-    const data = await fetchMajorNews({ maxRecords, timespan });
+    const data = await fetchMajorNews({ maxRecords });
     res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
 
     if (requestedSection && NEWS_SECTIONS.includes(requestedSection)) {
+      const sourceStatus = data.sourceStatus[requestedSection] || 'unavailable';
       return res.status(200).json({
-        status: data.sourceStatus[requestedSection] === 'live' ? 'live' : 'degraded',
+        status: sourceStatus === 'live' && data.sections[requestedSection]?.length ? 'live' : data.status,
         generatedAt: data.generatedAt,
         provider: data.provider,
         section: requestedSection,
-        stories: data.sections[requestedSection],
-        sourceStatus: data.sourceStatus[requestedSection],
+        stories: data.sections[requestedSection] || [],
+        sourceStatus,
         sourceCount: data.sourceCount
       });
     }
 
     return res.status(200).json(data);
   } catch (error) {
+    console.warn(`[news-feed] handler: ${error instanceof Error ? error.message : String(error)}`);
     return res.status(200).json({
       status: 'degraded',
       generatedAt: new Date().toISOString(),
-      provider: 'GDELT DOC 2.0',
+      provider: 'Google News RSS',
       sections: Object.fromEntries(NEWS_SECTIONS.map((section) => [section, []])),
       sourceStatus: Object.fromEntries(NEWS_SECTIONS.map((section) => [section, 'unavailable'])),
+      feedStatus: {},
       sourceCount: 0,
       error: 'news_feed_temporarily_unavailable'
     });
