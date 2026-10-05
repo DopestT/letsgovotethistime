@@ -12,6 +12,8 @@ on:
       - 'poll-watch.html'
       - 'styles.css'
       - 'index.html'
+      - 'sitemap.xml'
+      - 'llms.txt'
       - 'tests/news-feed.test.mjs'
       - 'package.json'
       - '.github/workflows/news-feed-ci.yml'
@@ -25,6 +27,8 @@ on:
       - 'poll-watch.html'
       - 'styles.css'
       - 'index.html'
+      - 'sitemap.xml'
+      - 'llms.txt'
       - 'tests/news-feed.test.mjs'
       - 'package.json'
       - '.github/workflows/news-feed-ci.yml'
@@ -62,6 +66,12 @@ jobs:
           grep -q '/api/news-feed' news.js
           grep -q 'DATA CONNECTION IN PROGRESS' poll-watch.html
           grep -q 'meta name="robots" content="noindex,follow"' poll-watch.html
+          grep -q 'href="/news"' index.html
+          grep -q 'id="majorNewsPreview"' index.html
+          grep -q 'src="/news.js"' index.html
+          grep -q 'href="https://letsgovotethistime.com/news"' sitemap.xml
+          grep -q 'Major News' llms.txt
+          grep -q 'https://letsgovotethistime.com/news' llms.txt
 
       - name: Unit tests
         run: npm test
