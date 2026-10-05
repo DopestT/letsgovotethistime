@@ -189,7 +189,7 @@ async function fetchJson(url, fetchImpl, timeoutMs) {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetchImpl(url, {
-      headers: { 'accept': 'application/json', 'user-agent': 'LGVTT-Major-News/1.0' },
+      headers: { accept: 'application/json', 'user-agent': 'LGVTT-Major-News/1.0' },
       signal: controller.signal
     });
     if (!response.ok) throw new Error(`GDELT HTTP ${response.status}`);
@@ -211,7 +211,9 @@ export async function fetchMajorNews({
       const payload = await fetchJson(buildGdeltUrl(section, { maxRecords, timespan }), fetchImpl, timeoutMs);
       return [section, payload];
     } catch (error) {
-      return [section, error instanceof Error ? error : new Error(String(error))];
+      const normalizedError = error instanceof Error ? error : new Error(String(error));
+      console.warn(`[news-feed] ${section}: ${normalizedError.name}: ${normalizedError.message}`);
+      return [section, normalizedError];
     }
   }));
 
