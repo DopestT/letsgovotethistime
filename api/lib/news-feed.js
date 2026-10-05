@@ -32,6 +32,13 @@ const SECTION_QUERIES = Object.freeze({
   world: '(world OR international OR war OR diplomacy OR foreign)'
 });
 
+const CLASSIFIERS = Object.freeze({
+  politics: /\b(politics|political|congress|senate|senator|house of representatives|white house|administration|governor|government|supreme court|president|trump|democrat|democratic|republican|gop)\b/i,
+  elections: /\b(election|elections|electoral|voting|vote|voter|voters|ballot|ballots|campaign|campaigns|poll|polling|primary|primaries|midterm|midterms|candidate|candidates)\b/i,
+  economy: /\b(economy|economic|inflation|jobs|employment|unemployment|federal reserve|\bfed\b|interest rate|interest rates|markets|market|stocks|tariff|tariffs|trade|gdp|prices|recession|wages)\b/i,
+  world: /\b(ukraine|russia|russian|china|chinese|israel|israeli|gaza|iran|iranian|europe|european|nato|united nations|war|ceasefire|diplomacy|diplomatic|foreign|international|middle east|asia|africa|latin america|mexico|canada|britain|uk|france|germany|japan|india)\b/i
+});
+
 const TRACKING_PARAMS = new Set([
   'fbclid', 'gclid', 'dclid', 'msclkid', 'mc_cid', 'mc_eid', 'ref', 'ref_src', 'cmpid'
 ]);
@@ -149,6 +156,16 @@ function extractArticles(value) {
   return [];
 }
 
+export function classifyStories(stories = []) {
+  const top = dedupeStories(stories);
+  const sections = { top };
+  for (const section of NEWS_SECTIONS.filter((name) => name !== 'top')) {
+    const classifier = CLASSIFIERS[section];
+    sections[section] = top.filter((story) => classifier.test(`${story.title || ''} ${story.url || ''}`));
+  }
+  return sections;
+}
+
 export function normalizeNewsPayload(sectionPayloads = {}, now = new Date()) {
   const sections = {};
   const sourceStatus = {};
@@ -184,6 +201,31 @@ export function normalizeNewsPayload(sectionPayloads = {}, now = new Date()) {
   };
 }
 
+function buildSingleFetchResponse(payload, now) {
+  const topStories = dedupeStories(extractArticles(payload).map((article) => normalizeGdeltArticle(article, 'top')));
+  const sections = classifyStories(topStories);
+  const hasStories = sections.top.length > 0;
+  return {
+    status: hasStories ? 'live' : 'data_pending',
+    generatedAt: now.toISOString(),
+    provider: 'GDELT DOC 2.0',
+    sections,
+    sourceStatus: Object.fromEntries(NEWS_SECTIONS.map((section) => [section, 'live'])),
+    sourceCount: MAJOR_NEWS_SOURCES.length
+  };
+}
+
+function buildUnavailableResponse(now) {
+  return {
+    status: 'degraded',
+    generatedAt: now.toISOString(),
+    provider: 'GDELT DOC 2.0',
+    sections: Object.fromEntries(NEWS_SECTIONS.map((section) => [section, []])),
+    sourceStatus: Object.fromEntries(NEWS_SECTIONS.map((section) => [section, 'unavailable'])),
+    sourceCount: MAJOR_NEWS_SOURCES.length
+  };
+}
+
 async function fetchJson(url, fetchImpl, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -203,19 +245,15 @@ export async function fetchMajorNews({
   fetchImpl = fetch,
   maxRecords = 40,
   timespan = '12h',
-  timeoutMs = 4500,
+  timeoutMs = 8500,
   now = new Date()
 } = {}) {
-  const entries = await Promise.all(NEWS_SECTIONS.map(async (section) => {
-    try {
-      const payload = await fetchJson(buildGdeltUrl(section, { maxRecords, timespan }), fetchImpl, timeoutMs);
-      return [section, payload];
-    } catch (error) {
-      const normalizedError = error instanceof Error ? error : new Error(String(error));
-      console.warn(`[news-feed] ${section}: ${normalizedError.name}: ${normalizedError.message}`);
-      return [section, normalizedError];
-    }
-  }));
-
-  return normalizeNewsPayload(Object.fromEntries(entries), now);
+  try {
+    const payload = await fetchJson(buildGdeltUrl('top', { maxRecords, timespan }), fetchImpl, timeoutMs);
+    return buildSingleFetchResponse(payload, now);
+  } catch (error) {
+    const normalizedError = error instanceof Error ? error : new Error(String(error));
+    console.warn(`[news-feed] upstream: ${normalizedError.name}: ${normalizedError.message}`);
+    return buildUnavailableResponse(now);
+  }
 }
