@@ -8,6 +8,8 @@ on:
       - 'api/news-feed.js'
       - 'news.html'
       - 'news.js'
+      - 'news-feed.css'
+      - 'poll-watch.html'
       - 'styles.css'
       - 'index.html'
       - 'tests/news-feed.test.mjs'
@@ -19,6 +21,8 @@ on:
       - 'api/news-feed.js'
       - 'news.html'
       - 'news.js'
+      - 'news-feed.css'
+      - 'poll-watch.html'
       - 'styles.css'
       - 'index.html'
       - 'tests/news-feed.test.mjs'
@@ -43,9 +47,21 @@ jobs:
 
       - name: Syntax check
         run: |
-          test ! -f api/lib/news-feed.js || node --check api/lib/news-feed.js
-          test ! -f api/news-feed.js || node --check api/news-feed.js
-          test ! -f news.js || node --check news.js
+          node --check api/lib/news-feed.js
+          node --check api/news-feed.js
+          node --check news.js
+
+      - name: Static surface checks
+        run: |
+          test -s news.html
+          test -s news-feed.css
+          test -s poll-watch.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/news"' news.html
+          grep -q 'id="newsGrid"' news.html
+          grep -q 'src="/news.js"' news.html
+          grep -q '/api/news-feed' news.js
+          grep -q 'DATA CONNECTION IN PROGRESS' poll-watch.html
+          grep -q 'meta name="robots" content="noindex,follow"' poll-watch.html
 
       - name: Unit tests
         run: npm test
