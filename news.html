@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b0d12" />
+  <link rel="canonical" href="https://letsgovotethistime.com/news" />
+  <meta name="description" content="A continuously refreshed major-news feed for the 2026 election cycle, with publisher attribution and source-transparent links." />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Let's Go Vote This Time" />
+  <meta property="og:title" content="Major News Feed | Let's Go Vote This Time" />
+  <meta property="og:description" content="Track major national, political, election, economic, and world news from major publishers in one source-attributed feed." />
+  <meta property="og:url" content="https://letsgovotethistime.com/news" />
+  <meta name="twitter:card" content="summary" />
+  <title>Major News Feed | Let's Go Vote This Time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/news-feed.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Major News Feed",
+    "url": "https://letsgovotethistime.com/news",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "Let's Go Vote This Time",
+      "url": "https://letsgovotethistime.com/"
+    },
+    "description": "Source-attributed major news coverage for the 2026 election cycle."
+  }
+  </script>
+</head>
+<body class="news-page">
+  <div class="topline" role="status">
+    <span class="pulse"></span>
+    ELECTION DAY · NOVEMBER 3, 2026
+  </div>
+
+  <header class="nav shell">
+    <a class="brand" href="/" aria-label="Let's Go Vote This Time home">
+      <span class="brand-mark">V</span>
+      <span>LET'S GO VOTE <strong>THIS TIME</strong></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a class="news-nav-link" href="/news" aria-current="page">Major News</a>
+      <a href="/poll-watch">Poll Watch</a>
+      <a href="/voting-map">Voting map</a>
+      <a href="/voter-guide">Voter guide</a>
+      <a href="/check-in">Did you vote?</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="news-hero shell">
+      <div class="news-hero-grid">
+        <div>
+          <div class="eyebrow">2026 ELECTION COMMAND CENTER</div>
+          <h1>MAJOR<br><em>NEWS.</em></h1>
+        </div>
+        <p class="news-hero-copy">A continuously refreshed index of major national, political, election, economic, and world reporting. Each headline is attributed to its publisher, and story links open through Google News to the underlying coverage. Source disagreements stay visible instead of being flattened into one narrative.</p>
+      </div>
+
+      <div class="news-status-bar">
+        <span class="news-status-pill" id="newsStatusPill" data-state="loading">
+          <span class="news-status-dot"></span>
+          <span id="newsStatusText">LOADING MAJOR NEWS FEED</span>
+        </span>
+        <span id="newsUpdated">Checking latest coverage…</span>
+        <span>Publisher-attributed index via Google News RSS</span>
+      </div>
+    </section>
+
+    <div class="news-toolbar">
+      <div class="news-tabs shell" role="tablist" aria-label="News sections">
+        <button class="news-tab" type="button" data-news-section="top" aria-selected="true">TOP NEWS</button>
+        <button class="news-tab" type="button" data-news-section="politics" aria-selected="false">POLITICS</button>
+        <button class="news-tab" type="button" data-news-section="elections" aria-selected="false">ELECTIONS</button>
+        <button class="news-tab" type="button" data-news-section="economy" aria-selected="false">ECONOMY</button>
+        <button class="news-tab" type="button" data-news-section="world" aria-selected="false">WORLD</button>
+      </div>
+    </div>
+
+    <section class="news-main shell">
+      <div class="news-section-head">
+        <h2 id="newsSectionTitle">Top News</h2>
+        <p id="newsStoryCount">Loading source-attributed stories…</p>
+      </div>
+
+      <div id="newsGrid" class="news-grid" aria-live="polite">
+        <div class="news-loading">LOADING MAJOR NEWS…</div>
+      </div>
+
+      <div class="news-method">
+        <div class="news-method-grid">
+          <div>
+            <h3>WHAT THIS FEED IS</h3>
+            <p>The feed aggregates Google News RSS headline indexes for top U.S. news, U.S. news, world news, business news, and election-related discovery. Publisher names, publisher domains, publication times, and story links are retained so readers can identify where each report came from.</p>
+          </div>
+          <div>
+            <h3>WHAT IT IS NOT</h3>
+            <p>This page does not treat one publisher as the official truth, does not infer facts from headline volume, and does not replace original reporting. A publisher disappearing from the feed means the current index did not return it—not that the event did not happen.</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="news-footer-note">Story links may pass through Google News before reaching the publisher. Coverage availability depends on Google News indexing and publisher availability. Some publishers use subscriptions or paywalls. Let's Go Vote This Time does not bypass publisher access controls.</p>
+    </section>
+  </main>
+
+  <footer class="footer shell">
+    <div>
+      <a class="brand" href="/">
+        <span class="brand-mark">V</span>
+        <span>LET'S GO VOTE <strong>THIS TIME</strong></span>
+      </a>
+      <p>Nonpartisan voter access, election intelligence, and source-transparent information for the 2026 election.</p>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/news">Major News</a>
+      <a href="/voting-map">Voting map</a>
+      <a href="/voter-guide">Voter guide</a>
+      <a href="/check-in">Did you vote?</a>
+    </div>
+  </footer>
+
+  <script src="/growth.js" defer></script>
+  <script src="/news.js" defer></script>
+</body>
+</html>

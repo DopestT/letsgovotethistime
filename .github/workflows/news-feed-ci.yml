@@ -1,0 +1,77 @@
+name: Major News Feed CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/lib/news-feed.js'
+      - 'api/news-feed.js'
+      - 'news.html'
+      - 'news.js'
+      - 'news-feed.css'
+      - 'poll-watch.html'
+      - 'styles.css'
+      - 'index.html'
+      - 'sitemap.xml'
+      - 'llms.txt'
+      - 'tests/news-feed.test.mjs'
+      - 'package.json'
+      - '.github/workflows/news-feed-ci.yml'
+  pull_request:
+    paths:
+      - 'api/lib/news-feed.js'
+      - 'api/news-feed.js'
+      - 'news.html'
+      - 'news.js'
+      - 'news-feed.css'
+      - 'poll-watch.html'
+      - 'styles.css'
+      - 'index.html'
+      - 'sitemap.xml'
+      - 'llms.txt'
+      - 'tests/news-feed.test.mjs'
+      - 'package.json'
+      - '.github/workflows/news-feed-ci.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Syntax check
+        run: |
+          node --check api/lib/news-feed.js
+          node --check api/news-feed.js
+          node --check news.js
+
+      - name: Static surface checks
+        run: |
+          test -s news.html
+          test -s news-feed.css
+          test -s poll-watch.html
+          grep -q 'rel="canonical" href="https://letsgovotethistime.com/news"' news.html
+          grep -q 'id="newsGrid"' news.html
+          grep -q 'src="/news.js"' news.html
+          grep -q '/api/news-feed' news.js
+          grep -q 'DATA CONNECTION IN PROGRESS' poll-watch.html
+          grep -q 'meta name="robots" content="noindex,follow"' poll-watch.html
+          grep -q 'href="/news"' index.html
+          grep -q 'id="majorNewsPreview"' index.html
+          grep -q 'src="/news.js"' index.html
+          grep -q 'href="https://letsgovotethistime.com/news"' sitemap.xml
+          grep -q 'Major News' llms.txt
+          grep -q 'https://letsgovotethistime.com/news' llms.txt
+
+      - name: Unit tests
+        run: npm test
